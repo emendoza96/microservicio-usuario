@@ -3,7 +3,7 @@ package com.microservice.user.domain;
 import java.util.List;
 
 public class Customer {
-    
+
     private int id;
     private String businessName;
     private String cuit;
@@ -11,7 +11,7 @@ public class Customer {
     private Boolean onlineEnabled;
     private Double maxPay;
     private User user;
-    
+
     private List<Construction> constructionList;
 
     public Customer(String businessName, String cuit, String email, Boolean onlineEnabled, Double maxPay) {
@@ -21,7 +21,7 @@ public class Customer {
         this.onlineEnabled = onlineEnabled;
         this.maxPay = maxPay;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -65,8 +65,8 @@ public class Customer {
 
     public void setConstructionList(List<Construction> constructionList) {
         this.constructionList = constructionList;
-    }  
-    
+    }
+
     public User getUser() {
         return user;
     }

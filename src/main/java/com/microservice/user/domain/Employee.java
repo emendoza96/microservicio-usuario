@@ -1,11 +1,11 @@
 package com.microservice.user.domain;
 
 public class Employee {
-    
+
     private int id;
     private String email;
     private User user;
-    
+
     public Employee(String email) {
         this.email = email;
     }
@@ -25,7 +25,7 @@ public class Employee {
     public void setEmail(String email) {
         this.email = email;
     }
-    
+
     public User getUser() {
         return user;
     }

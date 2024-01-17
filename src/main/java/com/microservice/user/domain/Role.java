@@ -1,10 +1,10 @@
 package com.microservice.user.domain;
 
 public class Role {
-    
+
     private int id;
     private String type;
-    
+
     public Role(int id, String type) {
         this.id = id;
         this.type = type;
