@@ -4,6 +4,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Construction;
+import com.microservice.user.domain.ConstructionType;
+import com.microservice.user.domain.Customer;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +29,7 @@ public class ConstructionController {
         return construction;
     }
 
-    @PutMapping("edit/{id}")
+    @PutMapping("/edit/{id}")
     public Construction editConstruction(@PathVariable Integer id, @RequestBody Construction construction) {
 
         construction.setId(id);
@@ -36,32 +38,29 @@ public class ConstructionController {
         return construction;
     }
 
-    @GetMapping("/id/{id}")
-    public Construction getConstruction(@PathVariable Integer id) {
+    @GetMapping
+    public Construction getConstruction(
+        @RequestParam Integer id,
+        @RequestParam(required = false) String customerName,
+        @RequestParam(required = false) String constructionType
+    ) {
+
+        Customer customer = new Customer(customerName, null, null, null, null);
+        ConstructionType type = new ConstructionType(1, constructionType);
 
         Construction construction = new Construction(
             null,
             null,
             null,
             null,
-            0
+            0,
+            customer
         );
 
         construction.setId(id);
+        construction.setConstructionType(type);
 
         return construction;
-    }
-
-    @GetMapping("/param")
-    public Construction getConstructionByParams(
-        @RequestParam(required = false) String client,
-        @RequestParam(required = false) String constructionType
-    ) {
-
-        System.out.println(client);
-        System.out.println(constructionType);
-
-        return null;
     }
 
     @DeleteMapping("/delete/{id}")

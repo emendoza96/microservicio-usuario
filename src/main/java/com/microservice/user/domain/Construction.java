@@ -9,14 +9,16 @@ public class Construction {
     private String direction;
     private int area;
 
+    private Customer customer;
     private ConstructionType constructionType;
 
-    public Construction(String description, Float latitude, Float longitude, String direction, int area) {
+    public Construction(String description, Float latitude, Float longitude, String direction, int area, Customer customer) {
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
         this.direction = direction;
         this.area = area;
+        this.customer = customer;
     }
 
     public int getId() {
@@ -75,11 +77,18 @@ public class Construction {
         this.constructionType = constructionType;
     }
 
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
     @Override
     public String toString() {
         return "Construction [id=" + id + ", description=" + description + ", latitude=" + latitude + ", longitude="
                 + longitude + ", direction=" + direction + ", area=" + area + "]";
     }
-
 
 }
