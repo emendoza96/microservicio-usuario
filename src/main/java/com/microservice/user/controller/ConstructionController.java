@@ -64,7 +64,7 @@ public class ConstructionController {
     @PostMapping
     @ApiOperation(value = "Save a new construction")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Construction successfully saved"),
+        @ApiResponse(code = 200, message = "New construction successfully saved"),
         @ApiResponse(code = 401, message = "Not authorized"),
         @ApiResponse(code = 403, message = "Forbidden")
     })
@@ -94,7 +94,7 @@ public class ConstructionController {
 
 
     @DeleteMapping("/delete/{id}")
-    @ApiOperation(value = "Edit a construction")
+    @ApiOperation(value = "Delete a construction")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Construction successfully deleted"),
         @ApiResponse(code = 401, message = "Not authorized"),

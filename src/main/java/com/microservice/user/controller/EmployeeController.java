@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.microservice.user.domain.Employee;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +28,13 @@ public class EmployeeController {
 
 
     @GetMapping
+    @ApiOperation(value = "Get a employee by parameters")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Get request successfully completed"),
+        @ApiResponse(code = 401, message = "Not authorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Employee not found with the parameters provided")
+    })
     public Employee getEmployee(
         @RequestParam Integer id,
         @RequestParam(required = false) String email
@@ -37,6 +47,12 @@ public class EmployeeController {
     }
 
     @PostMapping
+    @ApiOperation(value = "Save a new employee")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "New employee successfully saved"),
+        @ApiResponse(code = 401, message = "Not authorized"),
+        @ApiResponse(code = 403, message = "Forbidden")
+    })
     public Employee postEmployee(@RequestBody Employee employee) {
 
         System.out.println(employee);
@@ -45,6 +61,13 @@ public class EmployeeController {
     }
 
     @PutMapping("/edit/{id}")
+    @ApiOperation(value = "Edit a employee")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Employee successfully edited"),
+        @ApiResponse(code = 401, message = "Not authorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Employee not found")
+    })
     public Employee putEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
 
         employee.setId(id);
@@ -53,6 +76,13 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @ApiOperation(value = "Delete a employee")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Employee successfully deleted"),
+        @ApiResponse(code = 401, message = "Not authorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Employee not found")
+    })
     public Boolean deleteEmployee(@PathVariable Integer id) {
 
         return true;
