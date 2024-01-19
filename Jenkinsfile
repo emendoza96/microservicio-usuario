@@ -8,8 +8,8 @@ pipeline {
                 branch 'main'
             }
             steps {
-                bat "java -version"
-                bat "./mvnw clean"
+                sh 'java -version'
+                sh './mvnw clean'
             }
         }
         stage('clean-develop') {
@@ -17,39 +17,38 @@ pipeline {
                 branch 'develop'
             }
             steps {
-                bat "java -version"
-                bat "./mvnw clean"
-                bat "echo buildeando develop"
+                sh 'java -version'
+                sh './mvnw clean'
+                sh 'echo buildeando develop'
             }
         }
         stage('backend tests') {
             steps {
-                bat "./mvnw verify"
-                bat "echo 'configurar para ejecutar los tests'"
+                sh './mvnw verify'
+                sh 'echo "configurar para ejecutar los tests"'
             }
         }
         stage('Analisis estatico') {
             steps {
-                bat "./mvnw site"
-                bat "./mvnw checkstyle:checkstyle pmd:pmd pmd:cpd findbugs:findbugs spotbugs:spotbugs"
+                sh './mvnw site'
+                sh './mvnw checkstyle:checkstyle pmd:pmd pmd:cpd findbugs:findbugs spotbugs:spotbugs'
             }
         }
     }
     post {
-        success{
+        success {
             archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
         }
-        always{
+        always {
             archiveArtifacts artifacts: '**/target/site/**', fingerprint: true
-            publishHTML([allowMissing: false,
+            publishHTML(allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'target/site',
                         reportFiles: 'index.html',
-                        reportName: 'Site'
-            ])
+                        reportName: 'Site')
             junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
-            jacoco ( execPattern: 'target/jacoco.exec')
+            jacoco(execPattern: 'target/jacoco.exec')
             recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
             recordIssues enabledForFailure: true, tools: [checkStyle()]
             recordIssues enabledForFailure: true, tools: [spotBugs()]
