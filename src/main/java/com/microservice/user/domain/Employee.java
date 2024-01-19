@@ -6,8 +6,9 @@ public class Employee {
     private String email;
     private User user;
 
-    public Employee(String email) {
+    public Employee(String email, User user) {
         this.email = email;
+        this.user = user;
     }
 
     public int getId() {
