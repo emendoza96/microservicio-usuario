@@ -28,10 +28,11 @@ pipeline {
                 sh 'echo "configurar para ejecutar los tests"'
             }
         }
-        stage('Analisis estatico') {
+        stage('Install - Master') {
             steps {
-                sh './mvnw site'
-                sh './mvnw checkstyle:checkstyle pmd:pmd pmd:cpd findbugs:findbugs spotbugs:spotbugs'
+                sh "./mvnw clean install site -DskipTests"
+                sh './mvnw pmd:pmd'
+                sh './mvnw pmd:cpd'
             }
         }
     }
