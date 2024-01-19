@@ -1,7 +1,7 @@
 package com.microservice.user.domain;
 
 public class ConstructionType {
-    
+
     private int id;
     private String type;
 
