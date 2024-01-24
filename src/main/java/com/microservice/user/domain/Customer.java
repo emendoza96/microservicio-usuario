@@ -1,5 +1,7 @@
 package com.microservice.user.domain;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Customer {
@@ -11,8 +13,9 @@ public class Customer {
     private Boolean onlineEnabled;
     private Double maxPay;
     private User user;
+    private LocalDate dischargeDate;
 
-    private List<Construction> constructionList;
+    private List<Construction> constructionList = new ArrayList<>();
 
     public Customer(String businessName, String cuit, String email, Boolean onlineEnabled, Double maxPay) {
         this.businessName = businessName;
@@ -75,10 +78,19 @@ public class Customer {
         this.user = user;
     }
 
+    public LocalDate getDischargeDate() {
+        return dischargeDate;
+    }
+
+    public void setDischargeDate(LocalDate dischargeDate) {
+        this.dischargeDate = dischargeDate;
+    }
+
     @Override
     public String toString() {
         return "Customer [id=" + id + ", businessName=" + businessName + ", cuit=" + cuit + ", email=" + email
-                + ", onlineEnabled=" + onlineEnabled + ", maxPay=" + maxPay + "]";
+                + ", onlineEnabled=" + onlineEnabled + ", maxPay=" + maxPay + ", user=" + user + ", dischargeDate="
+                + dischargeDate + "]";
     }
 
 }
