@@ -3,6 +3,7 @@ package com.microservice.user.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.microservice.user.dao.EmployeeRepository;
 import com.microservice.user.domain.Employee;
 
 import io.swagger.annotations.Api;
@@ -10,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +28,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Api(value = "EmployeeRest")
 public class EmployeeController {
 
+    @Autowired
+    private EmployeeRepository employeeRepo;
 
     @GetMapping
     @ApiOperation(value = "Get a employee by parameters")
@@ -40,10 +44,7 @@ public class EmployeeController {
         @RequestParam(required = false) String email
     ) {
 
-        Employee employee = new Employee(email, null);
-        employee.setId(id);
-
-        return employee;
+        return employeeRepo.findById(id).get();
     }
 
     @PostMapping
@@ -55,7 +56,7 @@ public class EmployeeController {
     })
     public Employee postEmployee(@RequestBody Employee employee) {
 
-        System.out.println(employee);
+        employeeRepo.save(employee);
 
         return employee;
     }

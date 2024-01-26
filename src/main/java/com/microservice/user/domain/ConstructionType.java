@@ -1,9 +1,18 @@
 package com.microservice.user.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "ConstructionType")
 public class ConstructionType {
 
+    @Id
     private int id;
     private String type;
+
+    public ConstructionType() {}
 
     public ConstructionType(int id, String type) {
         this.id = id;
