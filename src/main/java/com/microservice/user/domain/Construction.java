@@ -1,7 +1,21 @@
 package com.microservice.user.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+@Entity
+@Table(name = "Construction")
 public class Construction {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String description;
     private Float latitude;
@@ -9,8 +23,16 @@ public class Construction {
     private String direction;
     private int area;
 
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    @JsonBackReference
     private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "type_id")
     private ConstructionType constructionType;
+
+    public Construction() {}
 
     public Construction(String description, Float latitude, Float longitude, String direction, int area, Customer customer) {
         this.description = description;
