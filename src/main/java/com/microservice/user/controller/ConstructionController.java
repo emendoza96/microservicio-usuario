@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
-import com.microservice.user.domain.Customer;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,7 +41,6 @@ public class ConstructionController {
         @RequestParam(required = false) String constructionType
     ) {
 
-        Customer customer = new Customer(customerName, null, null, null, null);
         ConstructionType type = new ConstructionType(1, constructionType);
 
         Construction construction = new Construction(
@@ -50,8 +48,7 @@ public class ConstructionController {
             null,
             null,
             null,
-            0,
-            customer
+            0
         );
 
         construction.setId(id);

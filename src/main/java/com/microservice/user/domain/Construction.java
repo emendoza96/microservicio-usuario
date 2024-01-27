@@ -34,13 +34,12 @@ public class Construction {
 
     public Construction() {}
 
-    public Construction(String description, Float latitude, Float longitude, String direction, int area, Customer customer) {
+    public Construction(String description, Float latitude, Float longitude, String direction, int area) {
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
         this.direction = direction;
         this.area = area;
-        this.customer = customer;
     }
 
     public int getId() {

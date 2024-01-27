@@ -3,10 +3,18 @@ package com.microservice.user.service.impl;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.microservice.user.dao.CustomerRepository;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.service.CustomerService;
 
+@Service
 public class CustomerServiceImpl implements CustomerService {
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Override
     public List<Customer> getAllCustomers() {
@@ -22,14 +30,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer getCustomerByParam(String cuit, String businessName) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCustomerByParam'");
+        return customerRepository.findByCuitOrBusinessName(cuit, businessName);
     }
 
     @Override
     public Customer createCustomer(Customer customer) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createCustomer'");
+        return customerRepository.save(customer);
     }
 
     @Override
@@ -50,7 +56,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer enableCustomer(Customer customer) {
-        
+
         String riskBCRA = "Normal";
         customer.setOnlineEnabled(riskBCRA.equals("Normal") || riskBCRA.equals("Low risk"));
 
@@ -59,10 +65,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer disableCustomer(Customer customer) {
-        
+
         customer.setDischargeDate(LocalDate.now());
 
         return customer;
     }
-    
+
 }

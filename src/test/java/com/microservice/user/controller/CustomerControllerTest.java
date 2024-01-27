@@ -1,18 +1,20 @@
 package com.microservice.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.microservice.user.dao.CustomerRepository;
+import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.User;
 
@@ -26,16 +28,62 @@ public class CustomerControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private CustomerRepository customerRepository;
+
     @Test
-    void testGetCustomer() {
+    void testGetCustomerByCuit() throws Exception {
 
+        Customer customer = getCustomer();
+        customerRepository.save(customer);
 
+        // Perform the GET request
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/customer?cuit={cuit}", customer.getCuit())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cuit").value(customer.getCuit()));
     }
 
     @Test
     void testSaveCustomer() throws Exception {
 
+        Customer customer = getCustomer();
+
+        // Convert to json
+        String customerJson = objectMapper.writeValueAsString(customer);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/customer")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(customerJson))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").isNumber())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.businessName").value(customer.getBusinessName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.user.username").value(customer.getUser().getUsername()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.user.password").value(customer.getUser().getPassword()));
+    }
+
+    @Test
+    void testSaveCustomerMissingUser() throws Exception {
+
+        Customer customer = getCustomer();
+
+        // Set user to null
+        customer.setUser(null);
+
+        // Convert to json
+        String customerJson = objectMapper.writeValueAsString(customer);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/customer")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(customerJson))
+            .andExpect(status().isBadRequest())
+            .andReturn();
+    }
+
+    private Customer getCustomer() {
+
         User user = new User("emi123", "342mie");
+        Construction construction = new Construction("test", 41.1f, 32.1f, "Buenos Aires 123", 32);
 
         Customer customer = new Customer(
             "El rancho del Emi",
@@ -44,20 +92,10 @@ public class CustomerControllerTest {
             false,
             null
         );
+
         customer.setUser(user);
+        customer.getConstructionList().add(construction);
 
-        // Convert to json
-        String customerJson = objectMapper.writeValueAsString(customer);
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/customer")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(customerJson))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.id").isNumber())
-            .andExpect(jsonPath("$.businessName").value(customer.getBusinessName()))
-            .andExpect(jsonPath("$.user.username").value(user.getUsername()))
-            .andExpect(jsonPath("$.user.password").value(user.getPassword()))
-            .andReturn();
+        return customer;
     }
 }
