@@ -5,7 +5,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ConstructionType")
+@Table(name = "construction_type")
 public class ConstructionType {
 
     @Id

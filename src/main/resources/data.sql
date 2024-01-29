@@ -1,0 +1,1 @@
+INSERT INTO construction_type (id, type) VALUES (1, 'REPAIR');

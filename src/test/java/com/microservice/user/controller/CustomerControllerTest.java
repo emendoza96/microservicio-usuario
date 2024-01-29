@@ -94,7 +94,7 @@ public class CustomerControllerTest {
 
     }
 
-    private Customer getCustomer() {
+    public static Customer getCustomer() {
 
         User user = new User("emi123", "342mie");
         Construction construction = new Construction("test", 41.1f, 32.1f, "Buenos Aires 123", 32);

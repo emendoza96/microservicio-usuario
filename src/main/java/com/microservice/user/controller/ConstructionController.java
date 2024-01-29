@@ -4,13 +4,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Construction;
-import com.microservice.user.domain.ConstructionType;
+import com.microservice.user.service.ConstructionService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,35 +30,30 @@ import org.springframework.web.bind.annotation.PutMapping;
 @Api(value = "ConstructionRest")
 public class ConstructionController {
 
+    @Autowired
+    private ConstructionService constructionService;
 
     @GetMapping
-    @ApiOperation(value = "Get a construction by parameters")
+    @ApiOperation(value = "Get constructions by parameters")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Get request successfully completed"),
         @ApiResponse(code = 401, message = "Not authorized"),
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Construction not found with the parameters provided")
     })
-    public Construction getConstruction(
-        @RequestParam Integer id,
+    public ResponseEntity<List<Construction>> getConstruction(
+        @RequestParam(required = false) Integer id,
         @RequestParam(required = false) String customerName,
         @RequestParam(required = false) String constructionType
     ) {
+        try {
+            List<Construction> constructions = constructionService.getConstructionByParams(customerName, constructionType);
+            return ResponseEntity.status(200).body(constructions);
+        } catch (Exception e) {
+            System.err.println(e);
+            return ResponseEntity.badRequest().build();
+        }
 
-        ConstructionType type = new ConstructionType(1, constructionType);
-
-        Construction construction = new Construction(
-            null,
-            null,
-            null,
-            null,
-            0
-        );
-
-        construction.setId(id);
-        construction.setConstructionType(type);
-
-        return construction;
     }
 
 
@@ -65,11 +64,18 @@ public class ConstructionController {
         @ApiResponse(code = 401, message = "Not authorized"),
         @ApiResponse(code = 403, message = "Forbidden")
     })
-    public Construction saveConstruction(@RequestBody Construction construction) {
+    public ResponseEntity<Construction> saveConstruction(@RequestBody Construction construction, @RequestParam Integer customerId) {
 
-        System.out.println(construction);
+        try {
+            if(!constructionService.validateConstruction(construction, customerId)) throw new Exception("Invalid data");
 
-        return construction;
+            Construction newConstruction = constructionService.createConstruction(construction, customerId);
+            return ResponseEntity.status(201).body(newConstruction);
+        } catch (Exception e) {
+            System.err.println(e);
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
 
