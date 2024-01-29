@@ -76,8 +76,22 @@ public class CustomerControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/customer")
             .contentType(MediaType.APPLICATION_JSON)
             .content(customerJson))
-            .andExpect(status().isBadRequest())
-            .andReturn();
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testDisableCustomer() throws Exception {
+        Customer customer = getCustomer();
+        Customer customerSaved = customerRepository.save(customer);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/customer/disable/{id}", customerSaved.getId())
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        Customer customerDischarged = customerRepository.findById(customerSaved.getId()).orElse(null);
+
+        assert customerDischarged.getDischargeDate() != null;
+
     }
 
     private Customer getCustomer() {

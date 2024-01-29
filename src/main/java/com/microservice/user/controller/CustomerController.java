@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 
 
@@ -78,5 +80,21 @@ public class CustomerController {
 
     }
 
+    @PutMapping("/disable/{id}")
+    @ApiOperation(value = "Disable customer by id")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Customer successfully disabled"),
+        @ApiResponse(code = 401, message = "Not authorized"),
+        @ApiResponse(code = 403, message = "Forbidden")
+    })
+    public ResponseEntity<Customer> disableCustomer(@PathVariable Integer id) {
+
+        try {
+            Customer customer = customerService.disableCustomer(id);
+            return ResponseEntity.status(200).body(customer);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
 }
