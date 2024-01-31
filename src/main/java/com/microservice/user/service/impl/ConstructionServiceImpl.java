@@ -65,7 +65,7 @@ public class ConstructionServiceImpl implements ConstructionService {
     @Override
     public List<Construction> getConstructionByParams(String customerName, String constructionType) {
 
-        return constructionRepository.findByCustomerNameOrType(customerName);
+        return constructionRepository.findByCustomerNameOrType(customerName, constructionType);
     }
 
 }

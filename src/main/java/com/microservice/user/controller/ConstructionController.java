@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,11 +44,21 @@ public class ConstructionController {
     })
     public ResponseEntity<List<Construction>> getConstruction(
         @RequestParam(required = false) Integer id,
-        @RequestParam(required = false) String customerName,
+        @RequestParam(required = false) String businessName,
         @RequestParam(required = false) String constructionType
     ) {
         try {
-            List<Construction> constructions = constructionService.getConstructionByParams(customerName, constructionType);
+            List<Construction> constructions = new ArrayList<>();
+
+            if (id != null) {
+                Construction construction = constructionService.getConstructionById(id).orElse(null);
+                if (construction != null) constructions.add(construction);
+            }
+
+            if (constructions.size() == 0) {
+                constructions.addAll(constructionService.getConstructionByParams(businessName, constructionType));
+            }
+
             return ResponseEntity.status(200).body(constructions);
         } catch (Exception e) {
             System.err.println(e);

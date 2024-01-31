@@ -1,6 +1,5 @@
 package com.microservice.user.controller;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -12,8 +11,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microservice.user.dao.ConstructionRepository;
 import com.microservice.user.dao.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
@@ -32,6 +31,9 @@ public class ConstructionControllerTest {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private ConstructionRepository constructionRepository;
+
     @Test
     void testDeleteConstruction() {
 
@@ -43,8 +45,23 @@ public class ConstructionControllerTest {
     }
 
     @Test
-    void testGetConstruction() {
+    void testGetConstruction() throws Exception {
+        Construction construction = new Construction("New construction", 36.541f, 40.534f, "Street 234", 55);
+        Customer customer = customerRepository.save(CustomerControllerTest.getCustomer());
+        construction.setCustomer(customer);
+        construction.setConstructionType(new ConstructionType(1, "REPAIR"));
 
+        constructionRepository.save(construction);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/api/construction?businessName={businessName}&constructionType={type}",
+                customer.getBusinessName(),
+                construction.getConstructionType().getType()
+            )
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.[0].customer.businessName").value(customer.getBusinessName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.[0].constructionType.type").value(construction.getConstructionType().getType()));
     }
 
     @Test
