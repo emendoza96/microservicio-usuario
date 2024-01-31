@@ -8,7 +8,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
 @Table(name = "construction")
@@ -21,11 +22,11 @@ public class Construction {
     private Float latitude;
     private Float longitude;
     private String direction;
-    private int area;
+    private Integer area;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
-    @JsonManagedReference
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     private Customer customer;
 
     @ManyToOne
@@ -34,7 +35,7 @@ public class Construction {
 
     public Construction() {}
 
-    public Construction(String description, Float latitude, Float longitude, String direction, int area) {
+    public Construction(String description, Float latitude, Float longitude, String direction, Integer area) {
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -82,11 +83,11 @@ public class Construction {
         this.direction = direction;
     }
 
-    public int getArea() {
+    public Integer getArea() {
         return area;
     }
 
-    public void setArea(int area) {
+    public void setArea(Integer area) {
         this.area = area;
     }
 

@@ -38,10 +38,14 @@ public class CustomerControllerTest {
         customerRepository.save(customer);
 
         // Perform the GET request
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/customer?cuit={cuit}", customer.getCuit())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cuit").value(customer.getCuit()));
+        mockMvc.perform(
+            MockMvcRequestBuilders.get(
+                "/api/customer?cuit={cuit}",
+                customer.getCuit()
+            )
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cuit").value(customer.getCuit()));
     }
 
     @Test
@@ -52,9 +56,11 @@ public class CustomerControllerTest {
         // Convert to json
         String customerJson = objectMapper.writeValueAsString(customer);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/customer")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(customerJson))
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/customer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(customerJson)
+            )
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").isNumber())
             .andExpect(MockMvcResultMatchers.jsonPath("$.businessName").value(customer.getBusinessName()))
@@ -73,9 +79,11 @@ public class CustomerControllerTest {
         // Convert to json
         String customerJson = objectMapper.writeValueAsString(customer);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/customer")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(customerJson))
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/customer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(customerJson)
+            )
             .andExpect(status().isBadRequest());
     }
 
@@ -84,8 +92,13 @@ public class CustomerControllerTest {
         Customer customer = getCustomer();
         Customer customerSaved = customerRepository.save(customer);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/customer/disable/{id}", customerSaved.getId())
-            .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(
+                MockMvcRequestBuilders.put(
+                    "/api/customer/disable/{id}",
+                    customerSaved.getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+            )
             .andExpect(status().isOk());
 
         Customer customerDischarged = customerRepository.findById(customerSaved.getId()).orElse(null);

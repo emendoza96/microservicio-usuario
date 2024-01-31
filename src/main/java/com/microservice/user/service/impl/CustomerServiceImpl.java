@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.microservice.user.dao.CustomerRepository;
+import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.service.CustomerService;
 
@@ -18,14 +19,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<Customer> getAllCustomers() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllCustomers'");
+        return customerRepository.findAll();
     }
 
     @Override
     public Customer getCustomerById(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCustomerById'");
+        return customerRepository.findById(id).get();
     }
 
     @Override
@@ -35,13 +34,20 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer createCustomer(Customer customer) {
+        List<Construction> constructionList = customer.getConstructionList();
+
+        if (constructionList != null) {
+            for (Construction construction : constructionList) {
+                construction.setCustomer(customer);
+            }
+        }
+
         return customerRepository.save(customer);
     }
 
     @Override
     public Customer editCustomer(Customer customer) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'editCustomer'");
+        return customerRepository.save(customer);
     }
 
     @Override

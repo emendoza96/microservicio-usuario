@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiResponses;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -98,12 +99,21 @@ public class ConstructionController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Construction not found")
     })
-    public Construction editConstruction(@PathVariable Integer id, @RequestBody Construction construction) {
+    public ResponseEntity<Construction> editConstruction(@PathVariable Integer id, @RequestBody Construction construction) {
 
-        construction.setId(id);
-        System.out.println(construction);
-
-        return construction;
+        try {
+            Construction constructionToEdit = constructionService.getConstructionById(id).orElseThrow();
+            Construction constructionResult = constructionService.createConstruction(construction, constructionToEdit.getCustomer().getId());
+            return ResponseEntity.status(200).body(constructionResult);
+        } catch (NoSuchElementException e){
+            System.err.println(e);
+            // Status 204 - no content
+            return ResponseEntity.noContent().build();
+        }
+        catch (Exception e) {
+            System.err.println(e);
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 
@@ -115,8 +125,13 @@ public class ConstructionController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Construction not found")
     })
-    public Boolean deleteConstruction(@PathVariable Integer id) {
+    public ResponseEntity<Object> deleteConstruction(@PathVariable Integer id) {
 
-        return true;
+        try {
+            constructionService.deleteConstruction(id);
+            return ResponseEntity.status(200).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(404).build();
+        }
     }
 }

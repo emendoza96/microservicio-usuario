@@ -35,49 +35,114 @@ public class ConstructionControllerTest {
     private ConstructionRepository constructionRepository;
 
     @Test
-    void testDeleteConstruction() {
+    void testDeleteConstruction() throws Exception {
+        Construction construction = getConstruction();
 
+        constructionRepository.save(construction);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete(
+                    "/api/construction/delete/{id}",
+                    construction.getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk());
     }
 
     @Test
-    void testEditConstruction() {
+    void testEditConstruction() throws Exception {
+        Construction construction = getConstruction();
 
+        Customer customer = CustomerControllerTest.getCustomer();
+
+        for (Construction constructionAux : customer.getConstructionList()) {
+            constructionAux.setCustomer(customer);
+        }
+
+        customer = customerRepository.save(customer);
+
+        String constructionJson = objectMapper.writeValueAsString(construction);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.put(
+                    "/api/construction/edit/{id}",
+                    customer.getConstructionList().get(0).getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(constructionJson)
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.area").value(construction.getArea()));
     }
 
     @Test
-    void testGetConstruction() throws Exception {
-        Construction construction = new Construction("New construction", 36.541f, 40.534f, "Street 234", 55);
+    void testGetConstructionByParams() throws Exception {
+        Construction construction = getConstruction();
+
         Customer customer = customerRepository.save(CustomerControllerTest.getCustomer());
         construction.setCustomer(customer);
-        construction.setConstructionType(new ConstructionType(1, "REPAIR"));
 
         constructionRepository.save(construction);
 
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/construction?businessName={businessName}&constructionType={type}",
-                customer.getBusinessName(),
-                construction.getConstructionType().getType()
+                    customer.getBusinessName(),
+                    construction.getConstructionType().getType()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.[0].customer.businessName").value(customer.getBusinessName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.[0].constructionType.type").value(construction.getConstructionType().getType()));
     }
 
     @Test
-    void testSaveConstruction() throws Exception {
-        Construction construction = new Construction("New construction", 36.541f, 40.534f, "Street 234", 55);
+    void testGetConstructionById() throws Exception {
+        Construction construction = getConstruction();
+
         Customer customer = customerRepository.save(CustomerControllerTest.getCustomer());
         construction.setCustomer(customer);
+
+        Construction constructionSaved = constructionRepository.save(construction);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get(
+                    "/api/construction?id={id}",
+                    construction.getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value(constructionSaved.getId())
+        );
+    }
+
+    @Test
+    void testSaveConstruction() throws Exception {
+        Construction construction = getConstruction();
+
+        Customer customer = customerRepository.save(CustomerControllerTest.getCustomer());
+
+        String constructionJson = objectMapper.writeValueAsString(construction);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post(
+                    "/api/construction?customerId={customerId}",
+                    customer.getId()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(constructionJson)
+            )
+            .andExpect(status().isCreated())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber()
+        );
+
+    }
+
+    public static Construction getConstruction() {
+        Construction construction = new Construction("New construction", 36.541f, 40.534f, "Street 234", 55);
         construction.setConstructionType(new ConstructionType(1, "REPAIR"));
-
-        String customerJson = objectMapper.writeValueAsString(construction);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/construction?customerId={customerId}" , construction.getCustomer().getId())
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(customerJson))
-        .andExpect(status().isCreated())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber());
-
+        return construction;
     }
 }
