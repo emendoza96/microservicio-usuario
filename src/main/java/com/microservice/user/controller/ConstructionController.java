@@ -103,6 +103,8 @@ public class ConstructionController {
 
         try {
             Construction constructionToEdit = constructionService.getConstructionById(id).orElseThrow();
+            construction.setId(id);
+
             Construction constructionResult = constructionService.createConstruction(construction, constructionToEdit.getCustomer().getId());
             return ResponseEntity.status(200).body(constructionResult);
         } catch (NoSuchElementException e){

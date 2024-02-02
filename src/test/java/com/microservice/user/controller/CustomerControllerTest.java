@@ -34,8 +34,7 @@ public class CustomerControllerTest {
     @Test
     void testGetCustomerByCuit() throws Exception {
 
-        Customer customer = getCustomer();
-        customerRepository.save(customer);
+        Customer customer = customerRepository.findById(1).orElseThrow();
 
         // Perform the GET request
         mockMvc.perform(
@@ -89,19 +88,19 @@ public class CustomerControllerTest {
 
     @Test
     void testDisableCustomer() throws Exception {
-        Customer customer = getCustomer();
-        Customer customerSaved = customerRepository.save(customer);
+
+        Customer customer = customerRepository.findById(1).orElseThrow();
 
         mockMvc.perform(
                 MockMvcRequestBuilders.put(
                     "/api/customer/disable/{id}",
-                    customerSaved.getId()
+                    customer.getId()
                 )
                 .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk());
 
-        Customer customerDischarged = customerRepository.findById(customerSaved.getId()).orElse(null);
+        Customer customerDischarged = customerRepository.findById(customer.getId()).orElse(null);
 
         assert customerDischarged.getDischargeDate() != null;
 
