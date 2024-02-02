@@ -79,7 +79,7 @@ public class EmployeeController {
             };
 
             Employee newEmployee = employeeService.saveEmployee(employee);
-            return ResponseEntity.status(200).body(newEmployee);
+            return ResponseEntity.status(201).body(newEmployee);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return ResponseEntity.badRequest().build();

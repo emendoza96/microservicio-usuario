@@ -38,11 +38,12 @@ public class CustomerControllerTest {
 
         // Perform the GET request
         mockMvc.perform(
-            MockMvcRequestBuilders.get(
-                "/api/customer?cuit={cuit}",
-                customer.getCuit()
+                MockMvcRequestBuilders.get(
+                    "/api/customer?cuit={cuit}",
+                    customer.getCuit()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
             )
-            .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.cuit").value(customer.getCuit()));
     }
