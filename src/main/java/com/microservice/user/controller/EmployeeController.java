@@ -57,7 +57,7 @@ public class EmployeeController {
             return ResponseEntity.status(200).body(employee.orElseThrow());
         } catch (NoSuchElementException e) {
             System.err.println(e.getMessage());
-            return ResponseEntity.status(204).build();
+            return ResponseEntity.status(404).build();
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -108,7 +108,7 @@ public class EmployeeController {
             return ResponseEntity.status(200).body(employeeResult);
         } catch (NoSuchElementException e) {
             System.err.println(e.getMessage());
-            return ResponseEntity.status(204).build();
+            return ResponseEntity.status(404).build();
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -132,7 +132,7 @@ public class EmployeeController {
             return ResponseEntity.status(200).build();
         } catch (NoSuchElementException e) {
             System.err.println(e.getMessage());
-            return ResponseEntity.status(204).build();
+            return ResponseEntity.status(404).build();
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return ResponseEntity.badRequest().build();
