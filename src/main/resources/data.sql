@@ -17,3 +17,5 @@ INSERT INTO customer (id, business_name, cuit, email, user_id) VALUES (1, 'Celi 
 
 INSERT INTO construction (id, description, latitude, longitude, direction, area, type_id, customer_id) VALUES (1, 'test', 34.2, 41.6, 'BS AS - 234', 54, 1, 1);
 INSERT INTO construction (id, description, latitude, longitude, direction, area, type_id, customer_id) VALUES (2, 'test2', 44.2, 31.6, 'Santa Fe - 111', 20, 2, 1);
+
+INSERT INTO material (id, name, description, price, current_stock, stock_min) VALUES (1, 'Brick', 'Brick desc', 5.5, 300, 30);
