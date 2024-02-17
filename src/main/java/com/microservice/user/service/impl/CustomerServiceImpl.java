@@ -72,7 +72,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer disableCustomer(Integer id) {
 
-        Customer customer = customerRepository.findById(id).orElse(null);
+        Customer customer = customerRepository.findById(id).get();
         customer.setDischargeDate(LocalDate.now());
 
         return customerRepository.save(customer);
