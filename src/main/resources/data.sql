@@ -6,9 +6,9 @@ INSERT INTO construction_type (id, type) VALUES (4, 'ROAD');
 INSERT INTO role (id, type) VALUES (1, 'CUSTOMER');
 INSERT INTO role (id, type) VALUES (2, 'SELLER');
 
-INSERT INTO user (id, username, password, role_id) VALUES (1, 'emiElLoco', 'emi123', 1);
-INSERT INTO user (id, username, password, role_id) VALUES (2, 'celi', 'celi123', 1);
-INSERT INTO user (id, username, password, role_id) VALUES (3, 'test', 'test123', 2);
+INSERT INTO user_entity (id, username, password, role_id) VALUES (1, 'emiElLoco', 'emi123', 1);
+INSERT INTO user_entity (id, username, password, role_id) VALUES (2, 'celi', 'celi123', 1);
+INSERT INTO user_entity (id, username, password, role_id) VALUES (3, 'test', 'test123', 2);
 
 INSERT INTO employee (id, email, user_id) VALUES (1, 'emiliano@gmail.com', 1);
 INSERT INTO employee (id, email, user_id) VALUES (2, 'test@gmail.com', 3);

@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.service.CustomerService;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -32,12 +32,12 @@ public class CustomerController {
     private CustomerService customerService;
 
     @GetMapping()
-    @ApiOperation(value = "Get a customer by parameters")
+    @Operation(summary = "Get a customer by parameters")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Get request successfully completed"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Customer not found with the parameters provided")
+        @ApiResponse(responseCode = "200", description = "Get request successfully completed"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Customer not found with the parameters provided")
     })
     public ResponseEntity<Customer> getCustomer(
         @RequestParam(required = false) String cuit,
@@ -56,11 +56,11 @@ public class CustomerController {
     }
 
     @PostMapping
-    @ApiOperation(value = "Save a new customer")
+    @Operation(summary = "Save a new customer")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "New customer successfully saved"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden")
+        @ApiResponse(responseCode = "200", description = "New customer successfully saved"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     public ResponseEntity<Customer> saveCustomer(@RequestBody Customer customer) {
 
@@ -81,11 +81,11 @@ public class CustomerController {
     }
 
     @PutMapping("/disable/{id}")
-    @ApiOperation(value = "Disable customer by id")
+    @Operation(summary = "Disable customer by id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Customer successfully disabled"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden")
+        @ApiResponse(responseCode = "200", description = "Customer successfully disabled"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     public ResponseEntity<Customer> disableCustomer(@PathVariable Integer id) {
 

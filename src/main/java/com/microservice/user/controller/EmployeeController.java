@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.microservice.user.domain.Employee;
 import com.microservice.user.service.EmployeeService;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -29,19 +29,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/api/employee")
-@Api(value = "EmployeeRest")
+@Tag(name = "EmployeeRest")
 public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
 
     @GetMapping
-    @ApiOperation(value = "Get a employee by parameters")
+    @Operation(summary = "Get a employee by parameters")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Get request successfully completed"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Employee not found with the parameters provided")
+        @ApiResponse(responseCode = "200", description = "Get request successfully completed"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Employee not found with the parameters provided")
     })
     public ResponseEntity<Employee> getEmployee(
         @RequestParam(required = false) Integer id,
@@ -65,11 +65,11 @@ public class EmployeeController {
     }
 
     @PostMapping
-    @ApiOperation(value = "Save a new employee")
+    @Operation(summary = "Save a new employee")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "New employee successfully saved"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden")
+        @ApiResponse(responseCode = "200", description = "New employee successfully saved"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     public ResponseEntity<Employee> saveEmployee(@RequestBody Employee employee) {
 
@@ -87,12 +87,12 @@ public class EmployeeController {
     }
 
     @PutMapping("/edit/{id}")
-    @ApiOperation(value = "Edit a employee")
+    @Operation(summary = "Edit a employee")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Employee successfully edited"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Employee not found")
+        @ApiResponse(responseCode = "200", description = "Employee successfully edited"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Employee not found")
     })
     public ResponseEntity<Employee> putEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
 
@@ -116,12 +116,12 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @ApiOperation(value = "Delete a employee")
+    @Operation(summary = "Delete a employee")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Employee successfully deleted"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Employee not found")
+        @ApiResponse(responseCode = "200", description = "Employee successfully deleted"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Employee not found")
     })
     public ResponseEntity<Object> deleteEmployee(@PathVariable Integer id) {
 

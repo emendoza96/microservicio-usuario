@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.service.ConstructionService;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,19 +29,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/api/construction")
-@Api(value = "ConstructionRest")
+@Tag(name = "ConstructionRest")
 public class ConstructionController {
 
     @Autowired
     private ConstructionService constructionService;
 
     @GetMapping
-    @ApiOperation(value = "Get constructions by parameters")
+    @Operation(summary = "Get constructions by parameters")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Get request successfully completed"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Construction not found with the parameters provided")
+        @ApiResponse(responseCode = "200", description = "Get request successfully completed"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Construction not found with the parameters provided")
     })
     public ResponseEntity<List<Construction>> getConstruction(
         @RequestParam(required = false) Integer id,
@@ -70,11 +70,11 @@ public class ConstructionController {
 
 
     @PostMapping
-    @ApiOperation(value = "Save a new construction")
+    @Operation(summary = "Save a new construction")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "New construction successfully saved"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden")
+        @ApiResponse(responseCode = "200", description = "New construction successfully saved"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     public ResponseEntity<Construction> saveConstruction(@RequestBody Construction construction, @RequestParam Integer customerId) {
 
@@ -92,12 +92,12 @@ public class ConstructionController {
 
 
     @PutMapping("/edit/{id}")
-    @ApiOperation(value = "Edit a construction")
+    @Operation(summary = "Edit a construction")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Construction successfully edited"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Construction not found")
+        @ApiResponse(responseCode = "200", description = "Construction successfully edited"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Construction not found")
     })
     public ResponseEntity<Construction> editConstruction(@PathVariable Integer id, @RequestBody Construction construction) {
 
@@ -120,12 +120,12 @@ public class ConstructionController {
 
 
     @DeleteMapping("/delete/{id}")
-    @ApiOperation(value = "Delete a construction")
+    @Operation(summary = "Delete a construction")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Construction successfully deleted"),
-        @ApiResponse(code = 401, message = "Not authorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Construction not found")
+        @ApiResponse(responseCode = "200", description = "Construction successfully deleted"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Construction not found")
     })
     public ResponseEntity<Object> deleteConstruction(@PathVariable Integer id) {
 
