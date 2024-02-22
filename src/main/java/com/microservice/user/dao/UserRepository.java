@@ -1,9 +1,13 @@
 package com.microservice.user.dao;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.microservice.user.domain.User;
+import com.microservice.user.domain.UserEntity;
 
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<UserEntity, Integer> {
+
+    public Optional<UserEntity> findByUsername(String username);
 
 }

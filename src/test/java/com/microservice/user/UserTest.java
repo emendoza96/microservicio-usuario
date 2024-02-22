@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.microservice.user.domain.User;
+import com.microservice.user.domain.UserEntity;
 
 public class UserTest {
 
@@ -15,8 +15,8 @@ public class UserTest {
         String expected_password = "12345678";
 
         // Act
-        User usertest = new User(expected_username, expected_password);
-        
+        UserEntity usertest = new UserEntity(expected_username, expected_password);
+
         // Assert
         assertEquals(expected_username, usertest.getUsername());
         assertEquals(expected_password, usertest.getPassword());

@@ -32,7 +32,7 @@ public class Customer {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserEntity user;
     private LocalDate dischargeDate;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
@@ -94,11 +94,11 @@ public class Customer {
         this.constructionList = constructionList;
     }
 
-    public User getUser() {
+    public UserEntity getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserEntity user) {
         this.user = user;
     }
 

@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.dao.EmployeeRepository;
 import com.microservice.user.domain.Employee;
-import com.microservice.user.domain.User;
+import com.microservice.user.domain.UserEntity;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -69,7 +69,7 @@ public class EmployeeControllerTest {
 
     @Test
     void testSaveEmployee() throws Exception {
-        Employee employee = new Employee("new_employee@gmail.com", new User("newAcc", "new123"));
+        Employee employee = new Employee("new_employee@gmail.com", new UserEntity("newAcc", "new123"));
 
         String employeeJson = objectMapper.writeValueAsString(employee);
 

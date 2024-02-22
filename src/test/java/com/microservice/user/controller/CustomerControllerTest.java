@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.microservice.user.dao.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
-import com.microservice.user.domain.User;
+import com.microservice.user.domain.UserEntity;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -109,7 +109,7 @@ public class CustomerControllerTest {
 
     public static Customer getCustomer() {
 
-        User user = new User("emi123", "342mie");
+        UserEntity user = new UserEntity("emi123", "342mie");
         Construction construction = new Construction("test", 41.1f, 32.1f, "Buenos Aires 123", 32);
 
         Customer customer = new Customer(

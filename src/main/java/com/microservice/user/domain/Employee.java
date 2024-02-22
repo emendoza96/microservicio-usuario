@@ -20,11 +20,11 @@ public class Employee {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserEntity user;
 
     public Employee() {}
 
-    public Employee(String email, User user) {
+    public Employee(String email, UserEntity user) {
         this.email = email;
         this.user = user;
     }
@@ -45,11 +45,11 @@ public class Employee {
         this.email = email;
     }
 
-    public User getUser() {
+    public UserEntity getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserEntity user) {
         this.user = user;
     }
 
