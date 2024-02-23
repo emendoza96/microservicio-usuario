@@ -12,12 +12,14 @@ services:
 
   mysql-db:
     image: mysql:latest
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: db-ms-user
+      MYSQL_DATABASE: builder_yard
       MYSQL_USER: emendoza
       MYSQL_PASSWORD: emi123
     ports:
-      - "3306:3306"
+      - "33061:3306"
     volumes:
-      - ./mysql-data:/var/lib/mysql
+      - ./schema.sql:/data/application/schema.sql
+    command: --init-file /data/application/schema.sql
