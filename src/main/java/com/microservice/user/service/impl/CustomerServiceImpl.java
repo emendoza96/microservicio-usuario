@@ -29,7 +29,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer getCustomerByParam(String cuit, String businessName) {
-        return customerRepository.findByCuitOrBusinessName(cuit, businessName);
+        return customerRepository.findByCuitOrBusinessName(cuit, businessName).get();
     }
 
     @Override

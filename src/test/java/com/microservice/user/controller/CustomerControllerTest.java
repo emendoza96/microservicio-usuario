@@ -1,128 +1,150 @@
 package com.microservice.user.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import com.microservice.user.dao.CustomerRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
+import com.microservice.user.security.filters.MockJwtAuthorizationFilter;
+import com.microservice.user.service.CustomerService;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 public class CustomerControllerTest {
+
+    @Mock
+    private CustomerService customerService;
+
+    @InjectMocks
+    private CustomerController customerController;
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private CustomerRepository customerRepository;
+    private Customer customer;
 
-    @Test
-    void testGetCustomerByCuit() throws Exception {
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();
 
-        Customer customer = customerRepository.findById(1).orElseThrow();
+        Construction construction = Construction.builder()
+            .description("test desc")
+            .latitude(30.4f)
+            .longitude(40.4f)
+            .direction("Test - 463")
+            .area(50)
+            .build()
+        ;
 
-        // Perform the GET request
-        mockMvc.perform(
-                MockMvcRequestBuilders.get(
-                    "/api/customer?cuit={cuit}",
-                    customer.getCuit()
-                )
-                .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cuit").value(customer.getCuit()));
-    }
+        customer = Customer.builder()
+            .businessName("Test business")
+            .cuit("20-32424559-7")
+            .email("test@gmail.com")
+            .maxPay(2000d)
+            .user(new UserEntity("test123", "test123"))
+            .constructionList(List.of(construction))
+            .build()
+        ;
 
-    @Test
-    void testSaveCustomer() throws Exception {
+        // Authorization
 
-        Customer customer = getCustomer();
-
-        // Convert to json
-        String customerJson = objectMapper.writeValueAsString(customer);
-
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/customer")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(customerJson)
-            )
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").isNumber())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.businessName").value(customer.getBusinessName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.user.username").value(customer.getUser().getUsername()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.user.password").value(customer.getUser().getPassword()));
-    }
-
-    @Test
-    void testSaveCustomerMissingUser() throws Exception {
-
-        Customer customer = getCustomer();
-
-        // Set user to null
-        customer.setUser(null);
-
-        // Convert to json
-        String customerJson = objectMapper.writeValueAsString(customer);
-
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/customer")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(customerJson)
-            )
-            .andExpect(status().isBadRequest());
+        mockMvc = MockMvcBuilders.standaloneSetup(customerController)
+            .addFilters(new MockJwtAuthorizationFilter())
+            .build()
+        ;
     }
 
     @Test
     void testDisableCustomer() throws Exception {
+        //given
+        int customerId = 1;
+        when(customerService.disableCustomer(customerId)).thenAnswer(invocation -> {
+            customer.setId(customerId);
+            customer.setDischargeDate(LocalDate.now());
+            return customer;
+        });
 
-        Customer customer = customerRepository.findById(1).orElseThrow();
-
-        mockMvc.perform(
-                MockMvcRequestBuilders.put(
-                    "/api/customer/disable/{id}",
-                    customer.getId()
-                )
-                .contentType(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk());
-
-        Customer customerDischarged = customerRepository.findById(customer.getId()).orElse(null);
-
-        assert customerDischarged.getDischargeDate() != null;
-
-    }
-
-    public static Customer getCustomer() {
-
-        UserEntity user = new UserEntity("emi123", "342mie");
-        Construction construction = new Construction("test", 41.1f, 32.1f, "Buenos Aires 123", 32);
-
-        Customer customer = new Customer(
-            "El rancho del Emi",
-            "20-3890823-7",
-            "emiliano344@gmail.com",
-            false,
-            null
+        //when
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.put("/api/customer/disable/{id}", customerId)
+            .contentType(MediaType.APPLICATION_JSON)
         );
 
-        customer.setUser(user);
-        customer.getConstructionList().add(construction);
+        //then
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.dischargeDate").exists())
+        ;
+    }
 
-        return customer;
+    @Test
+    void testGetCustomer() throws Exception {
+        //given
+        String cuit = customer.getCuit();
+        String business = customer.getBusinessName();
+
+        when(customerService.getCustomerByParam(cuit, business)).thenReturn(customer);
+
+        //when
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/customer?cuit={cuit}&businessName={businessName}", cuit, business)
+            .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        //then
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cuit").value(cuit))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.businessName").value(business))
+        ;
+    }
+
+    @Test
+    void testSaveCustomer() throws Exception {
+        //given
+        when(customerService.validateCustomer(any())).thenReturn(true);
+        when(customerService.createCustomer(any(Customer.class))).thenAnswer(invocation -> {
+            Customer customerResult = invocation.getArgument(0);
+            return customerResult;
+        });
+
+        String jsonResult = objectMapper.writeValueAsString(customer);
+
+        //when
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/customer")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonResult)
+        );
+
+        //then
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.businessName").value(customer.getBusinessName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cuit").value(customer.getCuit()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.maxPay").value(customer.getMaxPay()))
+        ;
     }
 }

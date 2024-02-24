@@ -7,11 +7,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "construction")
 public class Construction {
 
@@ -26,14 +31,12 @@ public class Construction {
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonBackReference
     private Customer customer;
 
     @ManyToOne
     @JoinColumn(name = "type_id")
     private ConstructionType constructionType;
-
-    public Construction() {}
 
     public Construction(String description, Float latitude, Float longitude, String direction, Integer area) {
         this.description = description;

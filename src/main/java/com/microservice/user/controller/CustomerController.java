@@ -58,7 +58,7 @@ public class CustomerController {
     @PostMapping
     @Operation(summary = "Save a new customer")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "New customer successfully saved"),
+        @ApiResponse(responseCode = "201", description = "New customer successfully saved"),
         @ApiResponse(responseCode = "401", description = "Not authorized"),
         @ApiResponse(responseCode = "403", description = "Forbidden")
     })

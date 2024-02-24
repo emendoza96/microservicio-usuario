@@ -1,7 +1,6 @@
 package com.microservice.user.domain;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -13,11 +12,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "customer")
 public class Customer {
 
@@ -36,10 +40,8 @@ public class Customer {
     private LocalDate dischargeDate;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-    private List<Construction> constructionList = new ArrayList<>();
-
-    public Customer() {}
+    @JsonManagedReference
+    private List<Construction> constructionList;
 
     public Customer(String businessName, String cuit, String email, Boolean onlineEnabled, Double maxPay) {
         this.businessName = businessName;
