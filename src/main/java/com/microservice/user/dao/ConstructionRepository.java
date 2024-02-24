@@ -13,7 +13,7 @@ public interface ConstructionRepository extends JpaRepository<Construction, Inte
     @Query(value =
         """
             SELECT
-                *
+                co.*
             FROM
                 construction co
             JOIN customer cu on co.customer_id = cu.id
