@@ -139,7 +139,7 @@ public class ConstructionControllerRestTemplateTest {
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(MediaType.APPLICATION_JSON).isEqualTo(response.getHeaders().getContentType());
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
         Construction result = response.getBody();
 
@@ -213,7 +213,7 @@ public class ConstructionControllerRestTemplateTest {
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(MediaType.APPLICATION_JSON).isEqualTo(response.getHeaders().getContentType());
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
         List<Construction> constructions = List.of(response.getBody());
         assertThat(constructions.size()).isGreaterThan(0);
@@ -241,7 +241,7 @@ public class ConstructionControllerRestTemplateTest {
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(MediaType.APPLICATION_JSON).isEqualTo(response.getHeaders().getContentType());
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
         List<Construction> constructions = List.of(response.getBody());
         assertThat(constructions.size()).isGreaterThan(0);

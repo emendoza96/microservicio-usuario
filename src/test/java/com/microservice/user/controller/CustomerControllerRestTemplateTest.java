@@ -87,7 +87,7 @@ public class CustomerControllerRestTemplateTest {
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(MediaType.APPLICATION_JSON).isEqualTo(response.getHeaders().getContentType());
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
         Customer newCustomer = response.getBody();
         assertThat(newCustomer.getCuit()).isEqualTo(customer.getCuit());
@@ -116,7 +116,7 @@ public class CustomerControllerRestTemplateTest {
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(MediaType.APPLICATION_JSON).isEqualTo(response.getHeaders().getContentType());
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
         Customer newCustomer = response.getBody();
         assertThat(newCustomer.getCuit()).isEqualTo(customer.getCuit());
@@ -140,7 +140,7 @@ public class CustomerControllerRestTemplateTest {
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(MediaType.APPLICATION_JSON).isEqualTo(response.getHeaders().getContentType());
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
         Customer newCustomer = response.getBody();
         assertThat(newCustomer.getDischargeDate()).isNotNull();
