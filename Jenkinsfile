@@ -19,13 +19,14 @@ pipeline {
             steps {
                 sh 'java -version'
                 sh './mvnw clean'
-                sh 'echo buildeando develop'
+                sh 'echo building develop'
             }
         }
         stage('backend tests') {
             steps {
                 sh './mvnw verify'
-                sh 'echo "configurar para ejecutar los tests"'
+                sh './mvnw test'
+                sh 'echo running tests'
             }
         }
         stage('Install - Master') {
@@ -33,6 +34,8 @@ pipeline {
                 sh "./mvnw clean install site -DskipTests"
                 sh './mvnw pmd:pmd'
                 sh './mvnw pmd:cpd'
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                archiveArtifacts artifacts: '**/target/site/**'
             }
         }
     }
