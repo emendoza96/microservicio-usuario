@@ -1,0 +1,197 @@
+version: '3.8'
+
+services:
+  user:
+    image: openjdk:17-jdk-alpine
+    volumes:
+      - ./microservicio-usuario/target/user-0.0.1-SNAPSHOT.jar:/app/user-0.0.1-SNAPSHOT.jar
+    working_dir: /app
+    command: ["java", "-jar", "/app/user-0.0.1-SNAPSHOT.jar"]
+    environment:
+      - SERVER_PORT=0
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/builder_yard
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=test123
+      - SPRING_APPLICATION_JSON={"eureka.client.service-url.defaultZone":"http://eureka:8761/eureka"}
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    networks:
+      - app
+    # scale: 2 # Create 2 instances
+
+  current-account:
+    image: openjdk:17-jdk-alpine
+    volumes:
+      - ./microservicio-cuentacorriente/target/current-account-0.0.1-SNAPSHOT.jar:/app/current-account-0.0.1-SNAPSHOT.jar
+    working_dir: /app
+    command: ["java", "-jar", "/app/current-account-0.0.1-SNAPSHOT.jar"]
+    environment:
+      - SERVER_PORT=0
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/builder_yard
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=test123
+      - SPRING_APPLICATION_JSON={"eureka.client.service-url.defaultZone":"http://eureka:8761/eureka"}
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    networks:
+      - app
+
+  order:
+    image: openjdk:17-jdk-alpine
+    volumes:
+      - ./microservicio-pedido/target/order-0.0.1-SNAPSHOT.jar:/app/order-0.0.1-SNAPSHOT.jar
+    working_dir: /app
+    command: ["java", "-jar", "/app/order-0.0.1-SNAPSHOT.jar"]
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    networks:
+      - kafka-net
+      - app
+    environment:
+      - SERVER_PORT=0
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/builder_yard
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=test123
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_PRODUCER_RETRIES=1
+      - SPRING_KAFKA_PRODUCER_KEY_SERIALIZER=org.apache.kafka.common.serialization.StringSerializer
+      - SPRING_KAFKA_PRODUCER_VALUE_SERIALIZER=org.apache.kafka.common.serialization.StringSerializer
+      - SPRING_APPLICATION_JSON={"eureka.client.service-url.defaultZone":"http://eureka:8761/eureka"}
+
+
+  stock:
+    image: openjdk:17-jdk-alpine
+    volumes:
+      - ./microservicio-stock/target/stock-0.0.1-SNAPSHOT.jar:/app/stock-0.0.1-SNAPSHOT.jar
+    working_dir: /app
+    command: ["java", "-jar", "/app/stock-0.0.1-SNAPSHOT.jar"]
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    networks:
+      - kafka-net
+      - app
+    environment:
+      - SERVER_PORT=0
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/builder_yard
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=test123
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_CONSUMER_GROUP_ID=stock-service
+      - SPRING_KAFKA_CONSUMER_KEY_DESERIALIZER=org.apache.kafka.common.serialization.StringDeserializer
+      - SPRING_KAFKA_CONSUMER_VALUE_DESERIALIZER=org.apache.kafka.common.serialization.StringDeserializer
+      - SPRING_APPLICATION_JSON={"eureka.client.service-url.defaultZone":"http://eureka:8761/eureka"}
+
+
+  # Infra
+
+  eureka:
+    image: openjdk:17-jdk-alpine
+    container_name: eureka-discovery-server
+    ports:
+      - "8761:8761"
+    volumes:
+      - ./builder-yard-api-gateway-with-eureka/discovery-server/target/discovery-server-0.0.1-SNAPSHOT.jar:/app/discovery-server-0.0.1-SNAPSHOT.jar
+    working_dir: /app
+    command: ["sh", "-c", "apk --no-cache add curl && java -jar /app/discovery-server-0.0.1-SNAPSHOT.jar"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    networks:
+      - app
+
+  api-gateway:
+    image: openjdk:17-jdk-alpine
+    container_name: api-gateway
+    ports:
+      - "9090:8080"
+    volumes:
+      - ./builder-yard-api-gateway-with-eureka/api-gateway/target/api-gateway-0.0.1-SNAPSHOT.jar:/app/api-gateway-0.0.1-SNAPSHOT.jar
+    working_dir: /app
+    command: ["java", "-jar", "/app/api-gateway-0.0.1-SNAPSHOT.jar"]
+    depends_on:
+      eureka:
+        condition: service_healthy
+    networks:
+      - app
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_APPLICATION_JSON={"eureka.client.service-url.defaultZone":"http://eureka:8761/eureka"}
+
+  mysql-db:
+    image: mysql:latest
+    container_name: ms-mysql-database
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: builder_yard
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: test123
+    ports:
+      - "3397:3306"
+    volumes:
+      - ./schema.sql:/data/application/schema.sql
+    command: --init-file /data/application/schema.sql
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=root123 --execute \"SHOW DATABASES;\""
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    networks:
+      - app
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - kafka-net
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "builder-yard-orders:1:1"
+    networks:
+      - kafka-net
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      start_period: 15s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+networks:
+  kafka-net:
+    driver: bridge
+  app:
+    driver: bridge
