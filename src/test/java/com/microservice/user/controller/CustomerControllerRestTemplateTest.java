@@ -1,8 +1,8 @@
 package com.microservice.user.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,12 +19,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.dao.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
+import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.security.jwt.JwtUtils;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -39,9 +38,6 @@ public class CustomerControllerRestTemplateTest {
 
     @Autowired
     private JwtUtils jwtUtils;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     private HttpHeaders headers;
 
@@ -86,23 +82,47 @@ public class CustomerControllerRestTemplateTest {
 
         //when
         HttpEntity<Customer> entity = new HttpEntity<>(customer, headers);
-        ResponseEntity<HashMap<String, Object>> response = restTemplate.exchange(
+        ResponseEntity<Customer> response = restTemplate.exchange(
             "/api/customer",
             HttpMethod.POST,
             entity,
-            new ParameterizedTypeReference<HashMap<String, Object>>() {}
+            Customer.class
         );
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        Customer newCustomer = objectMapper.convertValue(response.getBody().get("body"), Customer.class);
+        Customer newCustomer = response.getBody();
 
         assertThat(newCustomer.getCuit()).isEqualTo(customer.getCuit());
         assertThat(newCustomer.getBusinessName()).isEqualTo(customer.getBusinessName());
         assertThat(newCustomer.getEmail()).isEqualTo(customer.getEmail());
         assertThat(newCustomer.getMaxPay()).isEqualTo(customer.getMaxPay());
+    }
+
+    @Test
+    void testSaveCustomerMissingConstruction() throws Exception {
+        //given
+        customer.setConstructionList(null);
+        //when
+        HttpEntity<Customer> entity = new HttpEntity<>(customer, headers);
+        ResponseEntity<ErrorResponse> response = restTemplate.exchange(
+            "/api/customer",
+            HttpMethod.POST,
+            entity,
+            ErrorResponse.class
+        );
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        ErrorResponse errorResponse = response.getBody();
+
+        assertTrue(errorResponse.getError().getDetails().containsKey("construction"));
+        assertThat(errorResponse.getError().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(errorResponse.getError().getMessage()).isNotNull();
     }
 
     @Test
@@ -130,6 +150,29 @@ public class CustomerControllerRestTemplateTest {
         Customer newCustomer = response.getBody();
         assertThat(newCustomer.getCuit()).isEqualTo(customer.getCuit());
         assertThat(newCustomer.getBusinessName()).isEqualTo(customer.getBusinessName());
+    }
+
+    @Test
+    void testGetCustomerMissingParams() throws Exception {
+        //given
+        customerRepository.save(customer);
+
+        //when
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<ErrorResponse> response = restTemplate.exchange(
+            "/api/customer",
+            HttpMethod.GET,
+            entity,
+            ErrorResponse.class
+        );
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        ErrorResponse errorResponse = response.getBody();
+        assertThat(errorResponse.getError().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(errorResponse.getError().getMessage()).isNotNull();
     }
 
     @Test

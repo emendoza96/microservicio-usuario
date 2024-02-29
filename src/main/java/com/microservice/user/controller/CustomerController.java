@@ -3,6 +3,8 @@ package com.microservice.user.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Customer;
+import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.service.CustomerService;
 import com.microservice.user.utils.MessagePropertyUtils;
 
@@ -12,7 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.HashMap;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,19 +48,50 @@ public class CustomerController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Customer not found with the parameters provided")
     })
-    public ResponseEntity<Customer> getCustomer(
+    public ResponseEntity<?> getCustomer(
         @RequestParam(required = false) String cuit,
         @RequestParam(required = false) String businessName
     ) {
 
         try {
 
-            Customer customer = customerService.getCustomerByParam(cuit, businessName);
+            if(cuit == null && businessName == null) {
+                ErrorDetails errorDetails = new ErrorDetails();
+                errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+                errorDetails.setMessage(messageUtils.getMessage("missing_params", "cuit or business name"));
+                return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
+            }
 
+            Customer customer = customerService.getCustomerByParam(cuit, businessName);
+            return ResponseEntity.ok().body(customer);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
+        }
+    }
+
+    @GetMapping("/all")
+    @Operation(summary = "Get all customers")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Get request successfully completed"),
+        @ApiResponse(responseCode = "401", description = "Not authorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden"),
+        @ApiResponse(responseCode = "404", description = "Customers not found")
+    })
+    public ResponseEntity<?> getCustomer() {
+
+        try {
+            List<Customer> customer = customerService.getAllCustomers();
             return ResponseEntity.ok().body(customer);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
     }
 
@@ -70,32 +104,24 @@ public class CustomerController {
     })
     public ResponseEntity<?> saveCustomer(@RequestBody Customer customer) {
 
-        HashMap<String, Object> responseHashMap = new HashMap<>();
-
         try {
 
-            HashMap<String, String> customerErrors = customerService.getErrors(customer);
+            ErrorDetails customerErrors = customerService.getErrors(customer);
 
-            if(!customerErrors.isEmpty()) {
-                HashMap<String, Object> errorHashMap = new HashMap<>();
+            if(!customerErrors.getDetails().isEmpty()) {
+                customerErrors.setCode(HttpStatus.BAD_REQUEST.value());
+                customerErrors.setMessage(messageUtils.getMessage("missing_data_error"));
 
-                errorHashMap.put("details", customerErrors);
-                errorHashMap.put("statusCode", HttpStatus.BAD_REQUEST.value());
-                errorHashMap.put("message", messageUtils.getMessage("missing_data_error"));
-                responseHashMap.put("error", errorHashMap);
-
-                return ResponseEntity.badRequest().body(responseHashMap);
+                return ResponseEntity.badRequest().body(new ErrorResponse(customerErrors));
             }
 
             Customer newCustomer = customerService.createCustomer(customer);
-            responseHashMap.put("message", messageUtils.getMessage("new_entity_created", "customer"));
-            responseHashMap.put("body", newCustomer);
-            responseHashMap.put("code", HttpStatus.CREATED.value());
-
-            return ResponseEntity.status(201).body(responseHashMap);
+            return ResponseEntity.status(201).body(newCustomer);
         } catch (Exception e) {
-            responseHashMap.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(responseHashMap);
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
 
     }
@@ -107,13 +133,16 @@ public class CustomerController {
         @ApiResponse(responseCode = "401", description = "Not authorized"),
         @ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    public ResponseEntity<Customer> disableCustomer(@PathVariable Integer id) {
+    public ResponseEntity<?> disableCustomer(@PathVariable Integer id) {
 
         try {
             Customer customer = customerService.disableCustomer(id);
             return ResponseEntity.ok().body(customer);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
     }
 

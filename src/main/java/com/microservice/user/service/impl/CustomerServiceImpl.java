@@ -1,7 +1,6 @@
 package com.microservice.user.service.impl;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.microservice.user.dao.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
+import com.microservice.user.error.ErrorDetails;
 import com.microservice.user.service.CustomerService;
 import com.microservice.user.utils.MessagePropertyUtils;
 
@@ -85,15 +85,15 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public HashMap<String, String> getErrors(Customer customer) {
-        HashMap<String, String> errorHashMap = new HashMap<>();
+    public ErrorDetails getErrors(Customer customer) {
+        ErrorDetails errorDetails = new ErrorDetails();
 
         if(customer.getConstructionList() == null || customer.getConstructionList().size() == 0) {
-            errorHashMap.put("construction", messageUtils.getMessage("missing_construction_error"));
+            errorDetails.getDetails().put("construction", messageUtils.getMessage("missing_construction_error"));
         }
 
         if(customer.getUser() == null || customer.getUser().getUsername() == null || customer.getUser().getPassword() == null) {
-            errorHashMap.put("user", messageUtils.getMessage("missing_user_error"));
+            errorDetails.getDetails().put("user", messageUtils.getMessage("missing_user_error"));
         }
 
         if(customer.getConstructionList() != null) {
@@ -103,11 +103,11 @@ public class CustomerServiceImpl implements CustomerService {
             ;
 
             if(!haveConstructionType) {
-                errorHashMap.put("constructionType", messageUtils.getMessage("missing_construction_type_error"));
+                errorDetails.getDetails().put("constructionType", messageUtils.getMessage("missing_construction_type_error"));
             }
         }
 
-        return errorHashMap;
+        return errorDetails;
     }
 
 }

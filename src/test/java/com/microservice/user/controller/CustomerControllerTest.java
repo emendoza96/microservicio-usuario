@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
+import com.microservice.user.error.ErrorDetails;
 import com.microservice.user.security.filters.MockJwtAuthorizationFilter;
 import com.microservice.user.service.CustomerService;
 import com.microservice.user.utils.MessagePropertyUtils;
@@ -130,8 +130,7 @@ public class CustomerControllerTest {
     @Test
     void testSaveCustomer() throws Exception {
         //given
-        when(customerService.getErrors(any())).thenReturn(new HashMap<>());
-        when(messageUtils.getMessage(any(), any())).thenReturn("test");
+        when(customerService.getErrors(any())).thenReturn(new ErrorDetails());
         when(customerService.createCustomer(any(Customer.class))).thenAnswer(invocation -> {
             Customer customerResult = invocation.getArgument(0);
             return customerResult;
@@ -149,10 +148,10 @@ public class CustomerControllerTest {
         //then
         response.andDo(MockMvcResultHandlers.print())
             .andExpect(MockMvcResultMatchers.status().isCreated())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.body.id").isNumber())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.body.businessName").value(customer.getBusinessName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.body.cuit").value(customer.getCuit()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.body.maxPay").value(customer.getMaxPay()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.businessName").value(customer.getBusinessName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.cuit").value(customer.getCuit()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.maxPay").value(customer.getMaxPay()))
         ;
     }
 }
