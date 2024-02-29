@@ -1,5 +1,6 @@
 package com.microservice.user.service;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.microservice.user.domain.Customer;
@@ -14,4 +15,6 @@ public interface CustomerService {
     public Boolean validateCustomer(Customer customer);
     public Customer enableCustomer(Customer customer);
     public Customer disableCustomer(Integer id);
+    public HashMap<String, String> getErrors(Customer customer);
+
 }

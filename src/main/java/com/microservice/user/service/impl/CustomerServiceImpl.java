@@ -1,6 +1,7 @@
 package com.microservice.user.service.impl;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +11,16 @@ import com.microservice.user.dao.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.service.CustomerService;
+import com.microservice.user.utils.MessagePropertyUtils;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private MessagePropertyUtils messageUtils;
 
     @Override
     public List<Customer> getAllCustomers() {
@@ -63,6 +68,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer enableCustomer(Customer customer) {
 
+        // TODO
         String riskBCRA = "Normal";
         customer.setOnlineEnabled(riskBCRA.equals("Normal") || riskBCRA.equals("Low risk"));
 
@@ -76,6 +82,32 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setDischargeDate(LocalDate.now());
 
         return customerRepository.save(customer);
+    }
+
+    @Override
+    public HashMap<String, String> getErrors(Customer customer) {
+        HashMap<String, String> errorHashMap = new HashMap<>();
+
+        if(customer.getConstructionList() == null || customer.getConstructionList().size() == 0) {
+            errorHashMap.put("construction", messageUtils.getMessage("missing_construction_error"));
+        }
+
+        if(customer.getUser() == null || customer.getUser().getUsername() == null || customer.getUser().getPassword() == null) {
+            errorHashMap.put("user", messageUtils.getMessage("missing_user_error"));
+        }
+
+        if(customer.getConstructionList() != null) {
+            Boolean haveConstructionType = customer.getConstructionList()
+                .stream()
+                .allMatch(construction -> construction.getConstructionType() != null && construction.getConstructionType().getType() != null)
+            ;
+
+            if(!haveConstructionType) {
+                errorHashMap.put("constructionType", messageUtils.getMessage("missing_construction_type_error"));
+            }
+        }
+
+        return errorHashMap;
     }
 
 }

@@ -2,9 +2,9 @@ package com.microservice.user.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-
 import com.microservice.user.domain.Customer;
 import com.microservice.user.service.CustomerService;
+import com.microservice.user.utils.MessagePropertyUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,7 +12,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.HashMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +34,9 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
+    @Autowired
+    private MessagePropertyUtils messageUtils;
+
     @GetMapping()
     @Operation(summary = "Get a customer by parameters")
     @ApiResponses(value = {
@@ -48,7 +54,7 @@ public class CustomerController {
 
             Customer customer = customerService.getCustomerByParam(cuit, businessName);
 
-            return ResponseEntity.status(200).body(customer);
+            return ResponseEntity.ok().body(customer);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -62,20 +68,34 @@ public class CustomerController {
         @ApiResponse(responseCode = "401", description = "Not authorized"),
         @ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    public ResponseEntity<Customer> saveCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<?> saveCustomer(@RequestBody Customer customer) {
+
+        HashMap<String, Object> responseHashMap = new HashMap<>();
 
         try {
 
-            if(!customerService.validateCustomer(customer)) {
-                throw new Exception("Missing fields");
-            };
+            HashMap<String, String> customerErrors = customerService.getErrors(customer);
+
+            if(!customerErrors.isEmpty()) {
+                HashMap<String, Object> errorHashMap = new HashMap<>();
+
+                errorHashMap.put("details", customerErrors);
+                errorHashMap.put("statusCode", HttpStatus.BAD_REQUEST.value());
+                errorHashMap.put("message", messageUtils.getMessage("missing_data_error"));
+                responseHashMap.put("error", errorHashMap);
+
+                return ResponseEntity.badRequest().body(responseHashMap);
+            }
 
             Customer newCustomer = customerService.createCustomer(customer);
+            responseHashMap.put("message", messageUtils.getMessage("new_entity_created", "customer"));
+            responseHashMap.put("body", newCustomer);
+            responseHashMap.put("code", HttpStatus.CREATED.value());
 
-            return ResponseEntity.status(201).body(newCustomer);
+            return ResponseEntity.status(201).body(responseHashMap);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            responseHashMap.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(responseHashMap);
         }
 
     }
@@ -91,7 +111,7 @@ public class CustomerController {
 
         try {
             Customer customer = customerService.disableCustomer(id);
-            return ResponseEntity.status(200).body(customer);
+            return ResponseEntity.ok().body(customer);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
