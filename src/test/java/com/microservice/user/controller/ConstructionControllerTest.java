@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -86,6 +87,7 @@ public class ConstructionControllerTest {
 
         mockMvc = MockMvcBuilders.standaloneSetup(constructionController)
             .addFilters(new MockJwtAuthorizationFilter())
+            .setMessageConverters(new MappingJackson2HttpMessageConverter())
             .build()
         ;
     }
@@ -113,6 +115,7 @@ public class ConstructionControllerTest {
 
         //then
         response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isCreated())
         ;
     }
