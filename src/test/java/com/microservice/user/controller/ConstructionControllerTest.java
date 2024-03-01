@@ -29,14 +29,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
+import com.microservice.user.error.ErrorDetails;
 import com.microservice.user.security.filters.MockJwtAuthorizationFilter;
 import com.microservice.user.service.ConstructionService;
+import com.microservice.user.utils.MessagePropertyUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class ConstructionControllerTest {
 
     @Mock
     private ConstructionService constructionService;
+
+    @Mock
+    private MessagePropertyUtils messageUtils;
 
     @InjectMocks
     private ConstructionController constructionController;
@@ -96,7 +101,7 @@ public class ConstructionControllerTest {
     void testSaveConstruction() throws Exception {
         //given
         int customerId = 1;
-        when(constructionService.validateConstruction(any(), any())).thenReturn(true);
+        when(constructionService.getErrors(any(), any())).thenReturn(new ErrorDetails());
         when(constructionService.createConstruction(any(Construction.class), any())).thenAnswer(invocation -> {
             Construction construction = invocation.getArgument(0);
             construction.setId(customerId);
@@ -124,6 +129,7 @@ public class ConstructionControllerTest {
     void testDeleteConstruction() throws Exception {
         //given
         int constructionId = 1;
+        when(constructionService.getConstructionById(any())).thenReturn(Optional.of(new Construction()));
         doNothing().when(constructionService).deleteConstruction(constructionId);
 
         //when
@@ -145,6 +151,7 @@ public class ConstructionControllerTest {
         //given
         int constructionId = 1;
         construction.setId(constructionId);
+        when(constructionService.getErrors(any(), any())).thenReturn(new ErrorDetails());
         when(constructionService.getConstructionById(constructionId)).thenReturn(Optional.of(construction));
         when(constructionService.createConstruction(any(Construction.class), any())).thenAnswer(invocation -> {
             Construction construction = invocation.getArgument(0);
