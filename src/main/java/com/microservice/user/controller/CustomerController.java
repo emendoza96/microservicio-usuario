@@ -138,7 +138,10 @@ public class CustomerController {
         try {
             Customer customer = customerService.disableCustomer(id);
             return ResponseEntity.ok().body(customer);
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+        catch (Exception e) {
             ErrorDetails errorDetails = new ErrorDetails();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
             errorDetails.setMessage(e.getMessage());

@@ -56,16 +56,6 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Boolean validateCustomer(Customer customer) {
-
-        Boolean hasConstruction = customer.getConstructionList().size() > 0;
-        Boolean hasUser = customer.getUser() != null;
-        Boolean hasPassword = customer.getUser().getPassword() != null;
-
-        return hasConstruction && hasUser && hasPassword;
-    }
-
-    @Override
     public Customer enableCustomer(Customer customer) {
 
         // TODO
@@ -78,7 +68,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer disableCustomer(Integer id) {
 
-        Customer customer = customerRepository.findById(id).orElse(null);
+        Customer customer = customerRepository.findById(id).get();
         customer.setDischargeDate(LocalDate.now());
 
         return customerRepository.save(customer);

@@ -9,20 +9,20 @@ import jakarta.persistence.Table;
 public class ConstructionType {
 
     @Id
-    private int id;
+    private Integer id;
     private String type;
 
     public ConstructionType() {}
 
-    public ConstructionType(int id, String type) {
+    public ConstructionType(Integer id, String type) {
         this.id = id;
         this.type = type;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     public String getType() {

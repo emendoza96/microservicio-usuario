@@ -19,11 +19,11 @@ public interface ConstructionRepository extends JpaRepository<Construction, Inte
             JOIN customer cu on co.customer_id = cu.id
             JOIN construction_type ct on co.type_id = ct.id
             WHERE
-                cu.business_name = :businessName
-                and ct.type = :type
+                (:businessName is null or cu.business_name = :businessName)
+                and (:type is null or ct.type = :type)
         """,
         nativeQuery = true
     )
-    public List<Construction> findByCustomerNameOrType(@Param("businessName") String businessName, @Param("type") String type);
+    public List<Construction> findByBusinessNameAndType(@Param("businessName") String businessName, @Param("type") String type);
 
 }

@@ -13,7 +13,6 @@ public interface CustomerService {
     public Customer getCustomerByParam(String cuit, String businessName);
     public Customer createCustomer(Customer customer);
     public Customer editCustomer(Customer customer);
-    public Boolean validateCustomer(Customer customer);
     public Customer enableCustomer(Customer customer);
     public Customer disableCustomer(Integer id);
     public ErrorDetails getErrors(Customer customer);

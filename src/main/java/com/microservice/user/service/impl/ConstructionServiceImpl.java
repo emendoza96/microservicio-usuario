@@ -11,7 +11,9 @@ import com.microservice.user.dao.ConstructionTypeRepository;
 import com.microservice.user.dao.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
+import com.microservice.user.error.ErrorDetails;
 import com.microservice.user.service.ConstructionService;
+import com.microservice.user.utils.MessagePropertyUtils;
 
 @Service
 public class ConstructionServiceImpl implements ConstructionService {
@@ -21,6 +23,9 @@ public class ConstructionServiceImpl implements ConstructionService {
 
     @Autowired
     private ConstructionTypeRepository constructionTypeRepository;
+
+    @Autowired
+    private MessagePropertyUtils messageUtils;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -63,9 +68,25 @@ public class ConstructionServiceImpl implements ConstructionService {
     }
 
     @Override
-    public List<Construction> getConstructionByParams(String customerName, String constructionType) {
+    public ErrorDetails getErrors(Construction construction, Integer customerId) {
+        ErrorDetails errorDetails = new ErrorDetails();
 
-        return constructionRepository.findByCustomerNameOrType(customerName, constructionType);
+        if(construction.getConstructionType() == null || construction.getConstructionType().getType() == null) {
+            errorDetails.getDetails().put("constructionType", messageUtils.getMessage("missing_construction_type_error"));
+        } else if (!constructionTypeRepository.findByType(construction.getConstructionType().getType()).isPresent()) {
+            errorDetails.getDetails().put("constructionType", messageUtils.getMessage("invalid_construction_type_error"));
+        }
+
+        if(!customerRepository.existsById(customerId)) {
+            errorDetails.getDetails().put("customer", messageUtils.getMessage("missing_customer_error"));
+        }
+
+        return errorDetails;
+    }
+
+    @Override
+    public List<Construction> getConstructionByParams(String customerName, String constructionType) {
+        return constructionRepository.findByBusinessNameAndType(customerName, constructionType);
     }
 
 }
