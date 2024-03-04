@@ -4,7 +4,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Employee;
+import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.service.EmployeeService;
+import com.microservice.user.utils.MessagePropertyUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,6 +18,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +39,9 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
+    @Autowired
+    private MessagePropertyUtils messageUtils;
+
     @GetMapping
     @Operation(summary = "Get a employee by parameters")
     @ApiResponses(value = {
@@ -43,24 +50,25 @@ public class EmployeeController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Employee not found with the parameters provided")
     })
-    public ResponseEntity<Employee> getEmployee(
+    public ResponseEntity<?> getEmployee(
         @RequestParam(required = false) Integer id,
         @RequestParam(required = false) String email
     ) {
 
         try {
-            Optional<Employee> employee = employeeService.getEmployeeById(id);
-            if(!employee.isPresent()) {
-                employee = employeeService.getEmployeeByEmail(email);
-            }
+            Optional<Employee> employee =
+                id != null ?
+                employee = employeeService.getEmployeeById(id) : employeeService.getEmployeeByEmail(email)
+            ;
 
-            return ResponseEntity.status(200).body(employee.orElseThrow());
+            return ResponseEntity.ok().body(employee.orElseThrow());
         } catch (NoSuchElementException e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
     }
 
@@ -71,18 +79,24 @@ public class EmployeeController {
         @ApiResponse(responseCode = "401", description = "Not authorized"),
         @ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    public ResponseEntity<Employee> saveEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<?> saveEmployee(@RequestBody Employee employee) {
 
         try {
-            if(!employeeService.validateEmployee(employee)) {
-                throw new Exception("Missing fields");
-            };
+            ErrorDetails errorDetails = employeeService.getErrors(employee);
+
+            if (!errorDetails.getDetails().isEmpty()) {
+                errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+                errorDetails.setMessage(messageUtils.getMessage("missing_data_error"));
+                return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
+            }
 
             Employee newEmployee = employeeService.saveEmployee(employee);
             return ResponseEntity.status(201).body(newEmployee);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
     }
 
@@ -94,24 +108,30 @@ public class EmployeeController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Employee not found")
     })
-    public ResponseEntity<Employee> putEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
+    public ResponseEntity<?> putEmployee(@PathVariable Integer id, @RequestBody Employee employee) {
 
         try {
-            if(!employeeService.validateEmployee(employee)) {
-                throw new Exception("Missing fields");
-            };
+            ErrorDetails errorDetails = employeeService.getErrors(employee);
 
-            employeeService.getEmployeeById(id).orElseThrow();
+            if (!errorDetails.getDetails().isEmpty()) {
+                errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+                errorDetails.setMessage(messageUtils.getMessage("missing_data_error"));
+                return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
+            }
+
+            Employee employeeOld = employeeService.getEmployeeById(id).orElseThrow();
             employee.setId(id);
+            employee.getUser().setId(employeeOld.getUser().getId());
 
             Employee employeeResult = employeeService.saveEmployee(employee);
-            return ResponseEntity.status(200).body(employeeResult);
+            return ResponseEntity.ok().body(employeeResult);
         } catch (NoSuchElementException e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
     }
 
@@ -123,19 +143,20 @@ public class EmployeeController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Employee not found")
     })
-    public ResponseEntity<Object> deleteEmployee(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteEmployee(@PathVariable Integer id) {
 
         try {
             employeeService.getEmployeeById(id).orElseThrow();
             employeeService.deleteEmployee(id);
 
-            return ResponseEntity.status(200).build();
+            return ResponseEntity.ok().build();
         } catch (NoSuchElementException e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.badRequest().build();
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
+            errorDetails.setMessage(e.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
         }
     }
 }
