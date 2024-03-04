@@ -6,9 +6,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -126,6 +130,34 @@ public class ConstructionControllerTest {
     }
 
     @Test
+    void testSaveConstructionWithMissingConstructionType() throws Exception {
+        //given
+        int customerId = 1;
+        when(constructionService.getErrors(any(), any())).thenAnswer(invocation -> {
+            ErrorDetails errorDetails = new ErrorDetails();
+            errorDetails.getDetails().put("constructionType", "test");
+            return errorDetails;
+        });
+
+        String jsonResult = objectMapper.writeValueAsString(construction);
+
+        //when
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/construction?customerId={id}", customerId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonResult)
+        );
+
+        //then
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.error.code").value(HttpStatus.BAD_REQUEST.value()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.error.details.constructionType").value("test"))
+        ;
+    }
+
+    @Test
     void testDeleteConstruction() throws Exception {
         //given
         int constructionId = 1;
@@ -144,6 +176,25 @@ public class ConstructionControllerTest {
         ;
 
         verify(constructionService, times(1)).deleteConstruction(constructionId);
+    }
+
+    @Test
+    void testDeleteMissingConstruction() throws Exception {
+        //given
+        int constructionId = 9999;
+        when(constructionService.getConstructionById(any())).thenThrow(new NoSuchElementException("test"));
+
+        //when
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.delete("/api/construction/delete/{id}", constructionId)
+            .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        //then
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+        ;
+
     }
 
     @Test
@@ -178,6 +229,27 @@ public class ConstructionControllerTest {
     }
 
     @Test
+    void testEditMissingConstruction() throws Exception {
+        //given
+        int constructionId = 1;
+        when(constructionService.getConstructionById(any())).thenThrow(new NoSuchElementException("test"));
+
+        String jsonResult = objectMapper.writeValueAsString(construction);
+
+        //when
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.put("/api/construction/edit/{id}", constructionId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonResult)
+        );
+
+        //then
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+        ;
+    }
+
+    @Test
     void testGetConstructionById() throws Exception {
         //given
         int constructionId = 1;
@@ -196,6 +268,29 @@ public class ConstructionControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk())
         ;
     }
+
+    @Test
+    void testGetConstructionByNotFoundId() throws Exception {
+        //given
+        int constructionId = 1;
+        construction.setId(constructionId);
+        when(constructionService.getConstructionById(constructionId)).thenReturn(Optional.empty());
+        when(constructionService.getConstructionByParams(any(), any())).thenReturn(new ArrayList<>());
+
+        //when
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/construction?id={id}", constructionId)
+            .contentType(MediaType.APPLICATION_JSON)
+
+        );
+
+        //then
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)))
+        ;
+    }
+
 
     @Test
     void testGetConstructionByParams() throws Exception {

@@ -1,6 +1,7 @@
 package com.microservice.user.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
+import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.security.jwt.JwtUtils;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -149,6 +151,34 @@ public class ConstructionControllerRestTemplateTest {
     }
 
     @Test
+    void testSaveConstructionWithMissingConstructionType() {
+        //given
+        Customer customerSaved = customerRepository.save(customer1);
+        int customerId = customerSaved.getId();
+        construction.setConstructionType(null);
+
+        //when
+        HttpEntity<Construction> entity = new HttpEntity<>(construction, headers);
+        ResponseEntity<ErrorResponse> response = restTemplate.exchange(
+            "/api/construction?customerId={id}",
+            HttpMethod.POST,
+            entity,
+            ErrorResponse.class,
+            customerId
+        );
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        ErrorResponse errorResponse = response.getBody();
+        assertThat(errorResponse.getError().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(errorResponse.getError().getMessage()).isNotNull();
+        assertTrue(errorResponse.getError().getDetails().containsKey("constructionType"));
+        assertTrue(errorResponse.getError().getDetails().size() == 1);
+    }
+
+    @Test
     void testDeleteConstruction() {
         //given
         Customer customerSaved = customerRepository.save(customer1);
@@ -166,6 +196,25 @@ public class ConstructionControllerRestTemplateTest {
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void testDeleteMissingConstruction() {
+        //given
+        int constructionId = 9999;
+
+        //when
+        HttpEntity<Construction> entity = new HttpEntity<>(construction, headers);
+        ResponseEntity<String> response = restTemplate.exchange(
+            "/api/construction/delete/{id}",
+            HttpMethod.DELETE,
+            entity,
+            String.class,
+            constructionId
+        );
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -195,6 +244,25 @@ public class ConstructionControllerRestTemplateTest {
     }
 
     @Test
+    void testEditMissingConstruction() {
+        //given
+        int constructionId = 9999;
+
+        //when
+        HttpEntity<Construction> entity = new HttpEntity<>(construction, headers);
+        ResponseEntity<Construction> response = restTemplate.exchange(
+            "/api/construction/edit/{id}",
+            HttpMethod.PUT,
+            entity,
+            Construction.class,
+            constructionId
+        );
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
     void testGetConstructionById() {
         //given
         customerRepository.save(customer1);
@@ -218,6 +286,29 @@ public class ConstructionControllerRestTemplateTest {
         List<Construction> constructions = List.of(response.getBody());
         assertThat(constructions.size()).isGreaterThan(0);
         assertThat(constructions.get(0).getId()).isEqualTo(constructionId);
+    }
+
+    @Test
+    void testGetConstructionByNotFoundId() {
+        //given
+        int constructionId = 9999;
+
+        //when
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<Construction[]> response = restTemplate.exchange(
+            "/api/construction?id={id}",
+            HttpMethod.GET,
+            entity,
+            Construction[].class,
+            constructionId
+        );
+
+        //then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        List<Construction> constructions = List.of(response.getBody());
+        assertThat(constructions.size()).isEqualTo(0);
     }
 
     @Test
