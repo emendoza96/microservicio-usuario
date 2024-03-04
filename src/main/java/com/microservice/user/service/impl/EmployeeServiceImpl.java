@@ -8,13 +8,18 @@ import org.springframework.stereotype.Service;
 
 import com.microservice.user.dao.EmployeeRepository;
 import com.microservice.user.domain.Employee;
+import com.microservice.user.error.ErrorDetails;
 import com.microservice.user.service.EmployeeService;
+import com.microservice.user.utils.MessagePropertyUtils;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService{
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private MessagePropertyUtils messageUtils;
 
     @Override
     public Employee saveEmployee(Employee employee) {
@@ -49,6 +54,21 @@ public class EmployeeServiceImpl implements EmployeeService{
             && employee.getUser().getPassword() != null
             && employee.getUser().getUsername() != null;
 
+    }
+
+    @Override
+    public ErrorDetails getErrors(Employee employee) {
+        ErrorDetails errorDetails = new ErrorDetails();
+
+        if (employee.getEmail() == null) {
+            errorDetails.getDetails().put("email", messageUtils.getMessage("missing_email_error"));
+        }
+
+        if (employee.getUser().getPassword() == null || employee.getUser().getUsername() == null) {
+            errorDetails.getDetails().put("user", messageUtils.getMessage("missing_user_error"));
+        }
+
+        return errorDetails;
     }
 
 }
