@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.microservice.user.domain.Employee;
-import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorDetail;
 
 public interface EmployeeService {
 
@@ -14,5 +14,5 @@ public interface EmployeeService {
     public List<Employee> getAllEmployees();
     public void deleteEmployee(Integer id);
     public Boolean validateEmployee(Employee employee);
-    public ErrorDetails getErrors(Employee employee);
+    public ErrorDetail getErrors(Employee employee);
 }

@@ -12,6 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -28,19 +31,30 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @NotNull(message = "Business name is mandatory")
     private String businessName;
+
+    @NotNull(message = "CUIT is mandatory")
     private String cuit;
+
+    @NotNull(message = "Email is mandatory")
     private String email;
+
     private Boolean onlineEnabled;
     private Double maxPay;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
+    @NotNull(message = "User is mandatory")
+    @Valid
     private UserEntity user;
     private LocalDate dischargeDate;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonManagedReference
+    @Valid
+    @Size(min = 1, message = "At least one construction is required")
     private List<Construction> constructionList;
 
     public Customer(String businessName, String cuit, String email, Boolean onlineEnabled, Double maxPay) {

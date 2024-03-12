@@ -7,6 +7,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -26,6 +28,8 @@ public class Construction {
     private String description;
     private Float latitude;
     private Float longitude;
+
+    @NotNull(message = "Direction is mandatory")
     private String direction;
     private Integer area;
 
@@ -36,6 +40,8 @@ public class Construction {
 
     @ManyToOne
     @JoinColumn(name = "type_id")
+    @NotNull(message = "Construction type is mandatory")
+    @Valid
     private ConstructionType constructionType;
 
     public Construction(String description, Float latitude, Float longitude, String direction, Integer area) {

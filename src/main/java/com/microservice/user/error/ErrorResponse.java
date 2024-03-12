@@ -2,19 +2,19 @@ package com.microservice.user.error;
 
 public class ErrorResponse {
 
-    private ErrorDetails error;
+    private ErrorDetail error;
 
     public ErrorResponse() {}
 
-    public ErrorResponse(ErrorDetails error) {
+    public ErrorResponse(ErrorDetail error) {
         this.error = error;
     }
 
-    public ErrorDetails getError() {
+    public ErrorDetail getError() {
         return error;
     }
 
-    public void setError(ErrorDetails error) {
+    public void setError(ErrorDetail error) {
         this.error = error;
     }
 

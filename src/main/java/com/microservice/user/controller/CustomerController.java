@@ -3,7 +3,7 @@ package com.microservice.user.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Customer;
-import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.service.CustomerService;
 import com.microservice.user.utils.MessagePropertyUtils;
@@ -11,6 +11,7 @@ import com.microservice.user.utils.MessagePropertyUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -56,7 +57,7 @@ public class CustomerController {
         try {
 
             if(cuit == null && businessName == null) {
-                ErrorDetails errorDetails = new ErrorDetails();
+                ErrorDetail errorDetails = new ErrorDetail();
                 errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
                 errorDetails.setMessage(messageUtils.getMessage("missing_params", "cuit or business name"));
                 return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
@@ -67,7 +68,7 @@ public class CustomerController {
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            ErrorDetails errorDetails = new ErrorDetails();
+            ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
             errorDetails.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
@@ -88,7 +89,7 @@ public class CustomerController {
             List<Customer> customer = customerService.getAllCustomers();
             return ResponseEntity.ok().body(customer);
         } catch (Exception e) {
-            ErrorDetails errorDetails = new ErrorDetails();
+            ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
             errorDetails.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
@@ -102,23 +103,13 @@ public class CustomerController {
         @ApiResponse(responseCode = "401", description = "Not authorized"),
         @ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    public ResponseEntity<?> saveCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<?> saveCustomer(@Valid @RequestBody Customer customer) {
 
         try {
-
-            ErrorDetails customerErrors = customerService.getErrors(customer);
-
-            if(!customerErrors.getDetails().isEmpty()) {
-                customerErrors.setCode(HttpStatus.BAD_REQUEST.value());
-                customerErrors.setMessage(messageUtils.getMessage("missing_data_error"));
-
-                return ResponseEntity.badRequest().body(new ErrorResponse(customerErrors));
-            }
-
             Customer newCustomer = customerService.createCustomer(customer);
             return ResponseEntity.status(201).body(newCustomer);
         } catch (Exception e) {
-            ErrorDetails errorDetails = new ErrorDetails();
+            ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
             errorDetails.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
@@ -142,7 +133,7 @@ public class CustomerController {
             return ResponseEntity.notFound().build();
         }
         catch (Exception e) {
-            ErrorDetails errorDetails = new ErrorDetails();
+            ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
             errorDetails.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));

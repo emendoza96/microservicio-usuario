@@ -4,7 +4,7 @@ package com.microservice.user.service;
 import java.util.List;
 
 import com.microservice.user.domain.Customer;
-import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorDetail;
 
 public interface CustomerService {
 
@@ -15,6 +15,6 @@ public interface CustomerService {
     public Customer editCustomer(Customer customer);
     public Customer enableCustomer(Customer customer);
     public Customer disableCustomer(Integer id);
-    public ErrorDetails getErrors(Customer customer);
+    public ErrorDetail getErrors(Customer customer);
 
 }

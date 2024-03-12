@@ -4,15 +4,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Construction;
-import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.service.ConstructionService;
-import com.microservice.user.utils.MessagePropertyUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +39,6 @@ public class ConstructionController {
 
     @Autowired
     private ConstructionService constructionService;
-
-    @Autowired
-    private MessagePropertyUtils messageUtils;
 
     @GetMapping
     @Operation(summary = "Get constructions by parameters")
@@ -70,7 +67,7 @@ public class ConstructionController {
 
             return ResponseEntity.ok().body(constructions);
         } catch (Exception e) {
-            ErrorDetails errorDetails = new ErrorDetails();
+            ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
             errorDetails.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
@@ -86,21 +83,13 @@ public class ConstructionController {
         @ApiResponse(responseCode = "401", description = "Not authorized"),
         @ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    public ResponseEntity<?> saveConstruction(@RequestBody Construction construction, @RequestParam Integer customerId) {
+    public ResponseEntity<?> saveConstruction(@Valid @RequestBody Construction construction, @RequestParam Integer customerId) {
 
         try {
-            ErrorDetails errorDetails = constructionService.getErrors(construction, customerId);
-
-            if(!errorDetails.getDetails().isEmpty()) {
-                errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
-                errorDetails.setMessage(messageUtils.getMessage("missing_data_error"));
-                return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
-            }
-
             Construction newConstruction = constructionService.createConstruction(construction, customerId);
             return ResponseEntity.status(201).body(newConstruction);
         } catch (Exception e) {
-            ErrorDetails errorDetails = new ErrorDetails();
+            ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
             errorDetails.setMessage(e.getMessage());
             return  ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
@@ -117,19 +106,12 @@ public class ConstructionController {
         @ApiResponse(responseCode = "403", description = "Forbidden"),
         @ApiResponse(responseCode = "404", description = "Construction not found")
     })
-    public ResponseEntity<?> editConstruction(@PathVariable Integer id, @RequestBody Construction construction) {
+    public ResponseEntity<?> editConstruction(@PathVariable Integer id, @Valid @RequestBody Construction construction) {
 
         try {
 
             Construction constructionToEdit = constructionService.getConstructionById(id).orElseThrow();
             int customerId = constructionToEdit.getCustomer().getId();
-            ErrorDetails errorDetails = constructionService.getErrors(construction, customerId);
-
-            if(!errorDetails.getDetails().isEmpty()) {
-                errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
-                errorDetails.setMessage(messageUtils.getMessage("missing_data_error"));
-                return ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
-            }
 
             construction.setId(id);
             Construction constructionResult = constructionService.createConstruction(construction, customerId);
@@ -138,7 +120,7 @@ public class ConstructionController {
             return ResponseEntity.notFound().build();
         }
         catch (Exception e) {
-            ErrorDetails errorDetails = new ErrorDetails();
+            ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
             errorDetails.setMessage(e.getMessage());
             return  ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));
@@ -164,7 +146,7 @@ public class ConstructionController {
             return ResponseEntity.notFound().build();
         }
         catch (Exception e) {
-            ErrorDetails errorDetails = new ErrorDetails();
+            ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
             errorDetails.setMessage(e.getMessage());
             return  ResponseEntity.badRequest().body(new ErrorResponse(errorDetails));

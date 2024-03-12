@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.microservice.user.dao.EmployeeRepository;
 import com.microservice.user.domain.Employee;
-import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.service.EmployeeService;
 import com.microservice.user.utils.MessagePropertyUtils;
 
@@ -57,8 +57,8 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    public ErrorDetails getErrors(Employee employee) {
-        ErrorDetails errorDetails = new ErrorDetails();
+    public ErrorDetail getErrors(Employee employee) {
+        ErrorDetail errorDetails = new ErrorDetail();
 
         if (employee.getEmail() == null) {
             errorDetails.getDetails().put("email", messageUtils.getMessage("missing_email_error"));

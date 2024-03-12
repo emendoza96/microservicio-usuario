@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.microservice.user.dao.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
-import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.service.CustomerService;
 import com.microservice.user.utils.MessagePropertyUtils;
 
@@ -75,8 +75,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ErrorDetails getErrors(Customer customer) {
-        ErrorDetails errorDetails = new ErrorDetails();
+    public ErrorDetail getErrors(Customer customer) {
+        ErrorDetail errorDetails = new ErrorDetail();
 
         if(customer.getConstructionList() == null || customer.getConstructionList().size() == 0) {
             errorDetails.getDetails().put("construction", messageUtils.getMessage("missing_construction_error"));

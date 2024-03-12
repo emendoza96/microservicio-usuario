@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
-import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.security.filters.MockJwtAuthorizationFilter;
 import com.microservice.user.service.ConstructionService;
 import com.microservice.user.utils.MessagePropertyUtils;
@@ -105,7 +105,7 @@ public class ConstructionControllerTest {
     void testSaveConstruction() throws Exception {
         //given
         int customerId = 1;
-        when(constructionService.getErrors(any(), any())).thenReturn(new ErrorDetails());
+        when(constructionService.getErrors(any(), any())).thenReturn(new ErrorDetail());
         when(constructionService.createConstruction(any(Construction.class), any())).thenAnswer(invocation -> {
             Construction construction = invocation.getArgument(0);
             construction.setId(customerId);
@@ -134,7 +134,7 @@ public class ConstructionControllerTest {
         //given
         int customerId = 1;
         when(constructionService.getErrors(any(), any())).thenAnswer(invocation -> {
-            ErrorDetails errorDetails = new ErrorDetails();
+            ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.getDetails().put("constructionType", "test");
             return errorDetails;
         });
@@ -202,7 +202,7 @@ public class ConstructionControllerTest {
         //given
         int constructionId = 1;
         construction.setId(constructionId);
-        when(constructionService.getErrors(any(), any())).thenReturn(new ErrorDetails());
+        when(constructionService.getErrors(any(), any())).thenReturn(new ErrorDetail());
         when(constructionService.getConstructionById(constructionId)).thenReturn(Optional.of(construction));
         when(constructionService.createConstruction(any(Construction.class), any())).thenAnswer(invocation -> {
             Construction construction = invocation.getArgument(0);

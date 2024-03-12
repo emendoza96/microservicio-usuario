@@ -3,13 +3,13 @@ package com.microservice.user.error;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ErrorDetails {
+public class ErrorDetail {
 
     private Integer code;
     private String message;
     private Map<String, String> details = new LinkedHashMap<String, String>();
 
-    public ErrorDetails() {}
+    public ErrorDetail() {}
 
     public Integer getCode() {
         return code;

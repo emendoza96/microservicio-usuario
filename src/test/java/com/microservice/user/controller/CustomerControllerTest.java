@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
-import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.security.filters.MockJwtAuthorizationFilter;
 import com.microservice.user.service.CustomerService;
 import com.microservice.user.utils.MessagePropertyUtils;
@@ -130,7 +130,7 @@ public class CustomerControllerTest {
     @Test
     void testSaveCustomer() throws Exception {
         //given
-        when(customerService.getErrors(any())).thenReturn(new ErrorDetails());
+        when(customerService.getErrors(any())).thenReturn(new ErrorDetail());
         when(customerService.createCustomer(any(Customer.class))).thenAnswer(invocation -> {
             Customer customerResult = invocation.getArgument(0);
             return customerResult;

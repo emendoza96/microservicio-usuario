@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.domain.Employee;
 import com.microservice.user.domain.UserEntity;
-import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.security.filters.MockJwtAuthorizationFilter;
 import com.microservice.user.service.EmployeeService;
 
@@ -76,7 +76,7 @@ public class EmployeeControllerTest {
     @Test
     void testSaveEmployee() throws Exception {
         //given
-        when(employeeService.getErrors(any(Employee.class))).thenReturn(new ErrorDetails());
+        when(employeeService.getErrors(any(Employee.class))).thenReturn(new ErrorDetail());
         when(employeeService.saveEmployee(any(Employee.class))).thenAnswer(invocation -> {
             Employee employee = invocation.getArgument(0);
             employee.setId(1);
@@ -162,7 +162,7 @@ public class EmployeeControllerTest {
         //given
         int employeeId = 1;
         employee1.setId(employeeId);
-        when(employeeService.getErrors(any(Employee.class))).thenReturn(new ErrorDetails());
+        when(employeeService.getErrors(any(Employee.class))).thenReturn(new ErrorDetail());
         when(employeeService.getEmployeeById(employeeId)).thenReturn(Optional.of(employee1));
         when(employeeService.saveEmployee(any(Employee.class))).thenAnswer(invocation -> {
             Employee employee = invocation.getArgument(0);

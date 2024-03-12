@@ -11,7 +11,7 @@ import com.microservice.user.dao.ConstructionTypeRepository;
 import com.microservice.user.dao.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
-import com.microservice.user.error.ErrorDetails;
+import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.service.ConstructionService;
 import com.microservice.user.utils.MessagePropertyUtils;
 
@@ -68,8 +68,8 @@ public class ConstructionServiceImpl implements ConstructionService {
     }
 
     @Override
-    public ErrorDetails getErrors(Construction construction, Integer customerId) {
-        ErrorDetails errorDetails = new ErrorDetails();
+    public ErrorDetail getErrors(Construction construction, Integer customerId) {
+        ErrorDetail errorDetails = new ErrorDetail();
 
         if(construction.getConstructionType() == null || construction.getConstructionType().getType() == null) {
             errorDetails.getDetails().put("constructionType", messageUtils.getMessage("missing_construction_type_error"));
