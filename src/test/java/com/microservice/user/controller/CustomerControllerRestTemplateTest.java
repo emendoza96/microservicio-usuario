@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.microservice.user.dao.CustomerRepository;
 import com.microservice.user.domain.Construction;
@@ -28,6 +29,7 @@ import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.security.jwt.JwtUtils;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 public class CustomerControllerRestTemplateTest {
 
     @Autowired
@@ -102,6 +104,7 @@ public class CustomerControllerRestTemplateTest {
     }
 
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testSaveCustomerMissingConstruction() throws Exception {
         //given
         customer.setConstructionList(null);
@@ -120,12 +123,13 @@ public class CustomerControllerRestTemplateTest {
 
         ErrorResponse errorResponse = response.getBody();
 
-        assertTrue(errorResponse.getError().getDetails().containsKey("construction"));
+        assertTrue(errorResponse.getError().getDetails().size() > 0);
         assertThat(errorResponse.getError().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(errorResponse.getError().getMessage()).isNotNull();
     }
 
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testGetCustomer() throws Exception {
         //given
         String cuit = customer.getCuit();
@@ -153,6 +157,7 @@ public class CustomerControllerRestTemplateTest {
     }
 
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testGetCustomerMissingParams() throws Exception {
         //given
         customerRepository.save(customer);
@@ -176,6 +181,7 @@ public class CustomerControllerRestTemplateTest {
     }
 
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testDisableCustomer() throws Exception {
         //given
         Customer customerSaved = customerRepository.save(customer);

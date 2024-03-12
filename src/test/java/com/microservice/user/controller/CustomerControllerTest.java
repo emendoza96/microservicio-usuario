@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +25,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.domain.Construction;
+import com.microservice.user.domain.ConstructionType;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
-import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.security.filters.MockJwtAuthorizationFilter;
 import com.microservice.user.service.CustomerService;
 import com.microservice.user.utils.MessagePropertyUtils;
@@ -60,6 +61,7 @@ public class CustomerControllerTest {
             .longitude(40.4f)
             .direction("Test - 463")
             .area(50)
+            .constructionType(new ConstructionType(1, "REPAIR"))
             .build()
         ;
 
@@ -130,7 +132,6 @@ public class CustomerControllerTest {
     @Test
     void testSaveCustomer() throws Exception {
         //given
-        when(customerService.getErrors(any())).thenReturn(new ErrorDetail());
         when(customerService.createCustomer(any(Customer.class))).thenAnswer(invocation -> {
             Customer customerResult = invocation.getArgument(0);
             return customerResult;
@@ -152,6 +153,25 @@ public class CustomerControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.businessName").value(customer.getBusinessName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.cuit").value(customer.getCuit()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.maxPay").value(customer.getMaxPay()))
+        ;
+    }
+
+    @Test
+    void testSaveCustomerWithMissingConstruction() throws Exception {
+        //given
+        customer.setConstructionList(new ArrayList<>());
+        String jsonResult = objectMapper.writeValueAsString(customer);
+
+        //when
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/customer")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonResult)
+        );
+
+        //then
+        response.andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
         ;
     }
 }

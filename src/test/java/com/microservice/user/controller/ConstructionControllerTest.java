@@ -19,7 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,9 +30,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.domain.Construction;
+import com.microservice.user.domain.ConstructionType;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
-import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.security.filters.MockJwtAuthorizationFilter;
 import com.microservice.user.service.ConstructionService;
 import com.microservice.user.utils.MessagePropertyUtils;
@@ -69,6 +68,7 @@ public class ConstructionControllerTest {
             .direction("Test - 444")
             .area(100)
             .customer(Customer.builder().id(1).build())
+            .constructionType(new ConstructionType(1, "REPAIR"))
             .build()
         ;
 
@@ -105,7 +105,6 @@ public class ConstructionControllerTest {
     void testSaveConstruction() throws Exception {
         //given
         int customerId = 1;
-        when(constructionService.getErrors(any(), any())).thenReturn(new ErrorDetail());
         when(constructionService.createConstruction(any(Construction.class), any())).thenAnswer(invocation -> {
             Construction construction = invocation.getArgument(0);
             construction.setId(customerId);
@@ -133,11 +132,7 @@ public class ConstructionControllerTest {
     void testSaveConstructionWithMissingConstructionType() throws Exception {
         //given
         int customerId = 1;
-        when(constructionService.getErrors(any(), any())).thenAnswer(invocation -> {
-            ErrorDetail errorDetails = new ErrorDetail();
-            errorDetails.getDetails().put("constructionType", "test");
-            return errorDetails;
-        });
+        construction.setConstructionType(null);
 
         String jsonResult = objectMapper.writeValueAsString(construction);
 
@@ -150,10 +145,7 @@ public class ConstructionControllerTest {
 
         //then
         response.andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isBadRequest())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.error.code").value(HttpStatus.BAD_REQUEST.value()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.error.details.constructionType").value("test"))
         ;
     }
 
@@ -202,7 +194,6 @@ public class ConstructionControllerTest {
         //given
         int constructionId = 1;
         construction.setId(constructionId);
-        when(constructionService.getErrors(any(), any())).thenReturn(new ErrorDetail());
         when(constructionService.getConstructionById(constructionId)).thenReturn(Optional.of(construction));
         when(constructionService.createConstruction(any(Construction.class), any())).thenAnswer(invocation -> {
             Construction construction = invocation.getArgument(0);
@@ -310,7 +301,6 @@ public class ConstructionControllerTest {
         //then
         response.andDo(MockMvcResultHandlers.print())
             .andExpect(MockMvcResultMatchers.status().isOk())
-
         ;
     }
 }

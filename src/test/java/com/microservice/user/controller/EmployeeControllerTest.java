@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,7 +28,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.user.domain.Employee;
 import com.microservice.user.domain.UserEntity;
-import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.security.filters.MockJwtAuthorizationFilter;
 import com.microservice.user.service.EmployeeService;
 
@@ -74,9 +74,9 @@ public class EmployeeControllerTest {
     }
 
     @Test
+    @DisplayName("Save a new employee")
     void testSaveEmployee() throws Exception {
         //given
-        when(employeeService.getErrors(any(Employee.class))).thenReturn(new ErrorDetail());
         when(employeeService.saveEmployee(any(Employee.class))).thenAnswer(invocation -> {
             Employee employee = invocation.getArgument(0);
             employee.setId(1);
@@ -103,6 +103,7 @@ public class EmployeeControllerTest {
     }
 
     @Test
+    @DisplayName("Delete an employee by id")
     void testDeleteEmployee() throws Exception {
         //given
         int employeeId = 1;
@@ -140,6 +141,7 @@ public class EmployeeControllerTest {
     }
 
     @Test
+    @DisplayName("Get an employee by email")
     void testGetEmployeeByEmail() throws Exception {
         //given
         String email = employee1.getEmail();
@@ -158,11 +160,11 @@ public class EmployeeControllerTest {
     }
 
     @Test
+    @DisplayName("Edit an employee by id")
     void testPutEmployee() throws Exception {
         //given
         int employeeId = 1;
         employee1.setId(employeeId);
-        when(employeeService.getErrors(any(Employee.class))).thenReturn(new ErrorDetail());
         when(employeeService.getEmployeeById(employeeId)).thenReturn(Optional.of(employee1));
         when(employeeService.saveEmployee(any(Employee.class))).thenAnswer(invocation -> {
             Employee employee = invocation.getArgument(0);

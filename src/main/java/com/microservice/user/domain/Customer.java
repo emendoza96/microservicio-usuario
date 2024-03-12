@@ -53,6 +53,7 @@ public class Customer {
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonManagedReference
+    @NotNull(message = "Construction field is mandatory")
     @Valid
     @Size(min = 1, message = "At least one construction is required")
     private List<Construction> constructionList;
