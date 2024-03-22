@@ -3,6 +3,7 @@ package com.microservice.user.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Customer;
+import com.microservice.user.domain.dto.CustomerDTO;
 import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.service.CustomerService;
@@ -64,7 +65,7 @@ public class CustomerController {
             }
 
             Customer customer = customerService.getCustomerByParam(cuit, businessName);
-            return ResponseEntity.ok().body(customer);
+            return ResponseEntity.ok().body(CustomerDTO.customerMapping(customer));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -86,8 +87,8 @@ public class CustomerController {
     public ResponseEntity<?> getCustomer() {
 
         try {
-            List<Customer> customer = customerService.getAllCustomers();
-            return ResponseEntity.ok().body(customer);
+            List<CustomerDTO> customers = customerService.getAllCustomers().stream().map(customer -> CustomerDTO.customerMapping(customer)).toList();
+            return ResponseEntity.ok().body(customers);
         } catch (Exception e) {
             ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
@@ -107,7 +108,7 @@ public class CustomerController {
 
         try {
             Customer newCustomer = customerService.createCustomer(customer);
-            return ResponseEntity.status(201).body(newCustomer);
+            return ResponseEntity.status(201).body(CustomerDTO.customerMapping(newCustomer));
         } catch (Exception e) {
             ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
@@ -128,7 +129,7 @@ public class CustomerController {
 
         try {
             Customer customer = customerService.disableCustomer(id);
-            return ResponseEntity.ok().body(customer);
+            return ResponseEntity.ok().body(CustomerDTO.customerMapping(customer));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }

@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Construction;
+import com.microservice.user.domain.dto.ConstructionDTO;
 import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.service.ConstructionService;
@@ -65,7 +66,11 @@ public class ConstructionController {
                 constructions.addAll(constructionService.getConstructionByParams(businessName, constructionType));
             }
 
-            return ResponseEntity.ok().body(constructions);
+            List<ConstructionDTO> constructionDTOs = constructions.stream().map(c ->
+                ConstructionDTO.constructionMapping(c)
+            ).toList();
+
+            return ResponseEntity.ok().body(constructionDTOs);
         } catch (Exception e) {
             ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
@@ -87,7 +92,7 @@ public class ConstructionController {
 
         try {
             Construction newConstruction = constructionService.createConstruction(construction, customerId);
-            return ResponseEntity.status(201).body(newConstruction);
+            return ResponseEntity.status(201).body(ConstructionDTO.constructionMapping(newConstruction));
         } catch (Exception e) {
             ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
@@ -115,7 +120,7 @@ public class ConstructionController {
 
             construction.setId(id);
             Construction constructionResult = constructionService.createConstruction(construction, customerId);
-            return ResponseEntity.ok().body(constructionResult);
+            return ResponseEntity.ok().body(ConstructionDTO.constructionMapping(constructionResult));
         } catch (NoSuchElementException e){
             return ResponseEntity.notFound().build();
         }
