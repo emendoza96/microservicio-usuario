@@ -97,7 +97,6 @@ public class EmployeeControllerTest {
         result.andDo(MockMvcResultHandlers.print())
             .andExpect(MockMvcResultMatchers.status().isCreated())
             .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.user.id").value(1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("employee1@gmail.com"))
         ;
     }
@@ -185,7 +184,6 @@ public class EmployeeControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(employeeId))
             .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(employee2.getEmail()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.user.username").value(employee2.getUser().getUsername()))
         ;
     }
 }

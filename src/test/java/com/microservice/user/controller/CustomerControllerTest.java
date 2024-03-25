@@ -75,6 +75,8 @@ public class CustomerControllerTest {
             .build()
         ;
 
+        construction.setCustomer(customer);
+
         // Authorization
 
         mockMvc = MockMvcBuilders.standaloneSetup(customerController)
@@ -91,6 +93,7 @@ public class CustomerControllerTest {
         when(customerService.disableCustomer(customerId)).thenAnswer(invocation -> {
             customer.setId(customerId);
             customer.setDischargeDate(LocalDate.now());
+            System.err.println(customer);
             return customer;
         });
 

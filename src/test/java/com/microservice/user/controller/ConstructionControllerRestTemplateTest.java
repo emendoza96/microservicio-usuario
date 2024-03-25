@@ -25,6 +25,7 @@ import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
+import com.microservice.user.domain.dto.ConstructionDTO;
 import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.security.jwt.JwtUtils;
 
@@ -133,11 +134,11 @@ public class ConstructionControllerRestTemplateTest {
 
         //when
         HttpEntity<Construction> entity = new HttpEntity<>(construction, headers);
-        ResponseEntity<Construction> response = restTemplate.exchange(
+        ResponseEntity<ConstructionDTO> response = restTemplate.exchange(
             "/api/construction?customerId={id}",
             HttpMethod.POST,
             entity,
-            Construction.class,
+            ConstructionDTO.class,
             customerId
         );
 
@@ -145,7 +146,7 @@ public class ConstructionControllerRestTemplateTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        Construction result = response.getBody();
+        ConstructionDTO result = response.getBody();
 
         assertThat(result.getDescription()).isEqualTo(construction.getDescription());
         assertThat(result.getDirection()).isEqualTo(construction.getDirection());
@@ -227,18 +228,18 @@ public class ConstructionControllerRestTemplateTest {
 
         //when
         HttpEntity<Construction> entity = new HttpEntity<>(construction, headers);
-        ResponseEntity<Construction> response = restTemplate.exchange(
+        ResponseEntity<ConstructionDTO> response = restTemplate.exchange(
             "/api/construction/edit/{id}",
             HttpMethod.PUT,
             entity,
-            Construction.class,
+            ConstructionDTO.class,
             constructionId
         );
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Construction result = response.getBody();
+        ConstructionDTO result = response.getBody();
         assertThat(result.getId()).isEqualTo(constructionId);
         assertThat(result.getDescription()).isEqualTo(construction.getDescription());
         assertThat(result.getDirection()).isEqualTo(construction.getDirection());
@@ -252,11 +253,11 @@ public class ConstructionControllerRestTemplateTest {
 
         //when
         HttpEntity<Construction> entity = new HttpEntity<>(construction, headers);
-        ResponseEntity<Construction> response = restTemplate.exchange(
+        ResponseEntity<ConstructionDTO> response = restTemplate.exchange(
             "/api/construction/edit/{id}",
             HttpMethod.PUT,
             entity,
-            Construction.class,
+            ConstructionDTO.class,
             constructionId
         );
 
@@ -273,11 +274,11 @@ public class ConstructionControllerRestTemplateTest {
 
         //when
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<Construction[]> response = restTemplate.exchange(
+        ResponseEntity<ConstructionDTO[]> response = restTemplate.exchange(
             "/api/construction?id={id}",
             HttpMethod.GET,
             entity,
-            Construction[].class,
+            ConstructionDTO[].class,
             constructionId
         );
 
@@ -285,7 +286,7 @@ public class ConstructionControllerRestTemplateTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        List<Construction> constructions = List.of(response.getBody());
+        List<ConstructionDTO> constructions = List.of(response.getBody());
         assertThat(constructions.size()).isGreaterThan(0);
         assertThat(constructions.get(0).getId()).isEqualTo(constructionId);
     }
@@ -323,11 +324,11 @@ public class ConstructionControllerRestTemplateTest {
 
         //when
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<Construction[]> response = restTemplate.exchange(
+        ResponseEntity<ConstructionDTO[]> response = restTemplate.exchange(
             "/api/construction?businessName={businessName}&constructionType={constructionType}",
             HttpMethod.GET,
             entity,
-            Construction[].class,
+            ConstructionDTO[].class,
             businessName,
             constructionType
         );
@@ -336,9 +337,9 @@ public class ConstructionControllerRestTemplateTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        List<Construction> constructions = List.of(response.getBody());
+        List<ConstructionDTO> constructions = List.of(response.getBody());
         assertThat(constructions.size()).isGreaterThan(0);
-        assertThat(constructions.get(0).getConstructionType().getType()).isEqualTo(constructionType);
+        assertThat(constructions.get(0).getConstructionType()).isEqualTo(constructionType);
     }
 
     @AfterEach

@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import com.microservice.user.dao.EmployeeRepository;
 import com.microservice.user.domain.Employee;
 import com.microservice.user.domain.UserEntity;
+import com.microservice.user.domain.dto.EmployeeDTO;
 import com.microservice.user.security.jwt.JwtUtils;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -65,11 +66,11 @@ public class EmployeeControllerRestTemplateTest {
 
         //when
         HttpEntity<Employee> entity = new HttpEntity<>(employee1, headers);
-        ResponseEntity<Employee> response = restTemplate.exchange(
+        ResponseEntity<EmployeeDTO> response = restTemplate.exchange(
             "/api/employee",
             HttpMethod.POST,
             entity,
-            Employee.class
+            EmployeeDTO.class
         );
 
         //then
@@ -110,11 +111,11 @@ public class EmployeeControllerRestTemplateTest {
 
         //when
         HttpEntity<Employee> entity = new HttpEntity<>(headers);
-        ResponseEntity<Employee> response = restTemplate.exchange(
+        ResponseEntity<EmployeeDTO> response = restTemplate.exchange(
             "/api/employee?id={id}",
             HttpMethod.GET,
             entity,
-            Employee.class,
+            EmployeeDTO.class,
             employeeId
         );
 
@@ -122,7 +123,7 @@ public class EmployeeControllerRestTemplateTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        Employee employee = response.getBody();
+        EmployeeDTO employee = response.getBody();
         assertThat(employee.getId()).isEqualTo(employeeId);
         assertThat(employee.getEmail()).isEqualTo(employeeSaved.getEmail());
     }
@@ -135,11 +136,11 @@ public class EmployeeControllerRestTemplateTest {
 
         //when
         HttpEntity<Employee> entity = new HttpEntity<>(employee2, headers);
-        ResponseEntity<Employee> response = restTemplate.exchange(
+        ResponseEntity<EmployeeDTO> response = restTemplate.exchange(
             "/api/employee/edit/{id}",
             HttpMethod.PUT,
             entity,
-            Employee.class,
+            EmployeeDTO.class,
             employeeId
         );
 
@@ -147,7 +148,7 @@ public class EmployeeControllerRestTemplateTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        Employee employee = response.getBody();
+        EmployeeDTO employee = response.getBody();
         assertThat(employee.getId()).isEqualTo(employeeId);
         assertThat(employee.getEmail()).isEqualTo(employee2.getEmail());
     }

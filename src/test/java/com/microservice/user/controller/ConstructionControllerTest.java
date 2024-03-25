@@ -199,6 +199,7 @@ public class ConstructionControllerTest {
             Construction construction = invocation.getArgument(0);
             construction.setId(constructionId);
             construction.setArea(200);
+            construction.setCustomer(Customer.builder().id(1).build());
             return construction;
         });
 

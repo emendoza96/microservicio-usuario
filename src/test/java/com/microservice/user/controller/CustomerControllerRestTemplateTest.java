@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
+import com.microservice.user.domain.dto.CustomerDTO;
 import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.security.jwt.JwtUtils;
 
@@ -84,18 +84,18 @@ public class CustomerControllerRestTemplateTest {
 
         //when
         HttpEntity<Customer> entity = new HttpEntity<>(customer, headers);
-        ResponseEntity<Customer> response = restTemplate.exchange(
+        ResponseEntity<CustomerDTO> response = restTemplate.exchange(
             "/api/customer",
             HttpMethod.POST,
             entity,
-            Customer.class
+            CustomerDTO.class
         );
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        Customer newCustomer = response.getBody();
+        CustomerDTO newCustomer = response.getBody();
 
         assertThat(newCustomer.getCuit()).isEqualTo(customer.getCuit());
         assertThat(newCustomer.getBusinessName()).isEqualTo(customer.getBusinessName());
@@ -138,11 +138,11 @@ public class CustomerControllerRestTemplateTest {
 
         //when
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<Customer> response = restTemplate.exchange(
+        ResponseEntity<CustomerDTO> response = restTemplate.exchange(
             "/api/customer?cuit={cuit}&businessName={businessName}",
             HttpMethod.GET,
             entity,
-            Customer.class,
+            CustomerDTO.class,
             cuit,
             business
         );
@@ -151,7 +151,7 @@ public class CustomerControllerRestTemplateTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        Customer newCustomer = response.getBody();
+        CustomerDTO newCustomer = response.getBody();
         assertThat(newCustomer.getCuit()).isEqualTo(customer.getCuit());
         assertThat(newCustomer.getBusinessName()).isEqualTo(customer.getBusinessName());
     }
@@ -188,11 +188,11 @@ public class CustomerControllerRestTemplateTest {
 
         //when
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<Customer> response = restTemplate.exchange(
+        ResponseEntity<CustomerDTO> response = restTemplate.exchange(
             "/api/customer/disable/{id}",
             HttpMethod.PUT,
             entity,
-            Customer.class,
+            CustomerDTO.class,
             customerSaved.getId()
         );
 
@@ -200,12 +200,8 @@ public class CustomerControllerRestTemplateTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        Customer newCustomer = response.getBody();
+        CustomerDTO newCustomer = response.getBody();
         assertThat(newCustomer.getDischargeDate()).isNotNull();
     }
 
-    @AfterEach
-    void clearDB() {
-        customerRepository.deleteAll();
-    }
 }

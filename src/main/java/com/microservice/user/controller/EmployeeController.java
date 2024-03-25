@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Employee;
+import com.microservice.user.domain.dto.EmployeeDTO;
 import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.service.EmployeeService;
@@ -58,7 +59,7 @@ public class EmployeeController {
                 employee = employeeService.getEmployeeById(id) : employeeService.getEmployeeByEmail(email)
             ;
 
-            return ResponseEntity.ok().body(employee.orElseThrow());
+            return ResponseEntity.ok().body(EmployeeDTO.employeeMapping(employee.orElseThrow()));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -80,7 +81,7 @@ public class EmployeeController {
 
         try {
             Employee newEmployee = employeeService.saveEmployee(employee);
-            return ResponseEntity.status(201).body(newEmployee);
+            return ResponseEntity.status(201).body(EmployeeDTO.employeeMapping(newEmployee));
         } catch (Exception e) {
             ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());
@@ -105,7 +106,7 @@ public class EmployeeController {
             employee.getUser().setId(employeeOld.getUser().getId());
 
             Employee employeeResult = employeeService.saveEmployee(employee);
-            return ResponseEntity.ok().body(employeeResult);
+            return ResponseEntity.ok().body(EmployeeDTO.employeeMapping(employeeResult));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {

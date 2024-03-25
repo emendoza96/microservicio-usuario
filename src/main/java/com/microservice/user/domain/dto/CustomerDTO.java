@@ -23,6 +23,7 @@ public class CustomerDTO {
     private String cuit;
     private String email;
     private LocalDate dischargeDate;
+    private Double maxPay;
     private List<ConstructionDTO> constructions;
 
     public static CustomerDTO customerMapping(Customer customer) {
@@ -32,6 +33,7 @@ public class CustomerDTO {
             .cuit(customer.getCuit())
             .email(customer.getEmail())
             .dischargeDate(customer.getDischargeDate())
+            .maxPay(customer.getMaxPay())
             .constructions(
                 customer.getConstructionList().stream().map(c -> {
                     return ConstructionDTO.constructionMapping(c);
