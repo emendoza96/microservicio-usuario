@@ -19,8 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.microservice.user.dao.ConstructionRepository;
-import com.microservice.user.dao.CustomerRepository;
+import com.microservice.user.dao.jpa.ConstructionRepository;
+import com.microservice.user.dao.jpa.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
 import com.microservice.user.domain.Customer;

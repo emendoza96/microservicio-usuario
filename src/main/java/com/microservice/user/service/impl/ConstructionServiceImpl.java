@@ -6,9 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.microservice.user.dao.ConstructionRepository;
-import com.microservice.user.dao.ConstructionTypeRepository;
-import com.microservice.user.dao.CustomerRepository;
+import com.microservice.user.dao.jpa.ConstructionRepository;
+import com.microservice.user.dao.jpa.ConstructionTypeRepository;
+import com.microservice.user.dao.jpa.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
 import com.microservice.user.error.ErrorDetail;

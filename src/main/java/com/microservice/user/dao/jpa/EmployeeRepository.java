@@ -1,4 +1,4 @@
-package com.microservice.user.dao;
+package com.microservice.user.dao.jpa;
 
 import java.util.Optional;
 

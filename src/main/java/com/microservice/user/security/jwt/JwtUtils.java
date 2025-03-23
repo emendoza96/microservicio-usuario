@@ -4,8 +4,11 @@ import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.microservice.user.service.WhiteListTokenService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -21,6 +24,9 @@ public class JwtUtils {
 
     @Value("${jwt.time.expiration}")
     private String timeExpiration;
+
+    @Autowired
+    private WhiteListTokenService whiteListTokenService;
 
     public String generateAccessToken(String username) {
         return Jwts.builder()
@@ -67,5 +73,17 @@ public class JwtUtils {
     public Key getSignatureKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public void addToWhiteList(String username, String token) {
+        whiteListTokenService.addTokenToWhiteList(username, token);
+    }
+
+    public void removeTokenFromWhiteList(String token) {
+        whiteListTokenService.removeTokenFromWhiteList(token);
+    }
+
+    public boolean isInWhiteList(String token) {
+        return whiteListTokenService.isTokenInWhiteList(token);
     }
 }

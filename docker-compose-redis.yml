@@ -1,0 +1,37 @@
+version: '3.8'
+
+networks:
+  redis_network:
+    driver: bridge
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis-session
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    environment:
+      - REDIS_PASSWORD=mipasswordsegura
+    command: ["redis-server", "--requirepass", "mipasswordsegura"]
+    networks:
+      - redis_network
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: redis-insight
+    restart: always
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis_insight_data:/db
+    networks:
+      - redis_network
+
+volumes:
+  redis_data:
+    driver: local
+  redis_insight_data:
+    driver: local

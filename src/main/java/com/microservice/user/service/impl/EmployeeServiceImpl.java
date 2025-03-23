@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.microservice.user.dao.EmployeeRepository;
+import com.microservice.user.dao.jpa.EmployeeRepository;
 import com.microservice.user.domain.Employee;
 import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.service.EmployeeService;

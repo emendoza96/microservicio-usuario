@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.microservice.user.dao.EmployeeRepository;
+import com.microservice.user.dao.jpa.EmployeeRepository;
 import com.microservice.user.domain.Employee;
 import com.microservice.user.domain.UserEntity;
 import com.microservice.user.domain.dto.EmployeeDTO;
