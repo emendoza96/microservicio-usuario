@@ -15,6 +15,9 @@ services:
       - redis_data:/data
     networks:
       - redis_network
+    environment:
+      - REDIS_PASSWORD=mipasswordsegura
+    command: ["redis-server", "--requirepass", "mipasswordsegura"]
 
   redis-insight:
     image: redis/redisinsight:latest
