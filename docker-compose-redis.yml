@@ -13,9 +13,6 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    environment:
-      - REDIS_PASSWORD=mipasswordsegura
-    command: ["redis-server", "--requirepass", "mipasswordsegura"]
     networks:
       - redis_network
 
