@@ -79,11 +79,11 @@ public class JwtUtils {
         whiteListTokenService.addTokenToWhiteList(username, token);
     }
 
-    public void removeTokenFromWhiteList(String username, String token) {
-        whiteListTokenService.removeTokenFromWhiteList(username, token);
+    public void removeTokenFromWhiteList(String token) {
+        whiteListTokenService.removeTokenFromWhiteList(this.getUsernameFromToken(token), token);
     }
 
-    public boolean isInWhiteList(String username, String token) {
-        return whiteListTokenService.isTokenInWhiteList(username, token);
+    public boolean isInWhiteList(String token) {
+        return whiteListTokenService.isTokenInWhiteList(this.getUsernameFromToken(token), token);
     }
 }
