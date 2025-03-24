@@ -42,9 +42,10 @@ public class EmployeeControllerRestTemplateTest {
 
     @BeforeEach
     void setUp() {
-        String token = "Bearer " + jwtUtils.generateAccessToken("emi123");
+        String token = jwtUtils.generateAccessToken("emi123");
+        jwtUtils.addToWhiteList("emi123", token);
         headers = new HttpHeaders();
-        headers.set("Authorization", token);
+        headers.set("Authorization", "Bearer " + token);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         employee1 = Employee.builder()

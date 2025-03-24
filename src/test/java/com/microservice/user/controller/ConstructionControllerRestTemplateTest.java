@@ -53,11 +53,10 @@ public class ConstructionControllerRestTemplateTest {
 
     @BeforeEach
     void setUp() {
-
-        // Set up JWT token
-        String token = "Bearer " + jwtUtils.generateAccessToken("emi123");
+        String token = jwtUtils.generateAccessToken("emi123");
+        jwtUtils.addToWhiteList("emi123", token);
         headers = new HttpHeaders();
-        headers.set("Authorization", token);
+        headers.set("Authorization", "Bearer " + token);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Construction construction1 = Construction.builder()
