@@ -29,7 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException("The user " +  username + " doesn't exist"));
 
 
-        Collection<? extends GrantedAuthority> authorities = Set.of(new SimpleGrantedAuthority("ROLE_".concat(userEntity.getRole().getType())));
+        Collection<? extends GrantedAuthority> authorities = Set.of(new SimpleGrantedAuthority("ROLE_".concat(userEntity.getRole().getType().name())));
 
         return new User(
             userEntity.getUsername(),

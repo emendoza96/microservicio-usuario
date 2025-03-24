@@ -1,6 +1,8 @@
 package com.microservice.user.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -10,11 +12,12 @@ public class Role {
 
     @Id
     private int id;
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private UserRole type;
 
     public Role() {}
 
-    public Role(int id, String type) {
+    public Role(int id, UserRole type) {
         this.id = id;
         this.type = type;
     }
@@ -27,17 +30,22 @@ public class Role {
         this.id = id;
     }
 
-    public String getType() {
+    public UserRole getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(UserRole type) {
         this.type = type;
     }
 
     @Override
     public String toString() {
         return "Role [id=" + id + ", type=" + type + "]";
+    }
+
+    public static enum UserRole {
+        CUSTOMER,
+        EMPLOYEE
     }
 
 }

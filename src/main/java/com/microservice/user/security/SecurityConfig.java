@@ -31,6 +31,8 @@ public class SecurityConfig {
     @Autowired
     private JwtUtils jwtUtils;
 
+    private static final String[] PUBLIC_PATHS = {"/api/onboarding/register"};
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, AuthenticationManager authenticationManager)
             throws Exception {
@@ -42,6 +44,7 @@ public class SecurityConfig {
         return httpSecurity
             .csrf(config -> config.disable())
             .authorizeHttpRequests(auth -> {
+                auth.requestMatchers(PUBLIC_PATHS).permitAll();
                 auth.anyRequest().authenticated();
             })
             .sessionManagement(session -> {
