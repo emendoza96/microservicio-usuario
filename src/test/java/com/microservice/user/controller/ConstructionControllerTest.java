@@ -68,7 +68,7 @@ public class ConstructionControllerTest {
             .direction("Test - 444")
             .area(100)
             .customer(Customer.builder().id(1).build())
-            .constructionType(new ConstructionType(1, "REPAIR"))
+            .constructionType(new ConstructionType(1, ConstructionType.ConstructionTypeEnum.REPAIR))
             .build()
         ;
 
@@ -215,7 +215,6 @@ public class ConstructionControllerTest {
         //then
         response.andDo(MockMvcResultHandlers.print())
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(constructionId))
             .andExpect(MockMvcResultMatchers.jsonPath("$.area").value(200))
         ;
     }

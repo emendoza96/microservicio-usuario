@@ -9,15 +9,22 @@ import org.springframework.stereotype.Service;
 import com.microservice.user.dao.jpa.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
+import com.microservice.user.domain.dto.SaveCustomerRequest;
 import com.microservice.user.error.ErrorDetail;
+import com.microservice.user.service.ConstructionService;
 import com.microservice.user.service.CustomerService;
 import com.microservice.user.utils.MessagePropertyUtils;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private ConstructionService constructionService;
 
     @Autowired
     private MessagePropertyUtils messageUtils;
@@ -38,16 +45,17 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer createCustomer(Customer customer) {
-        List<Construction> constructionList = customer.getConstructionList();
+    @Transactional
+    public Customer createCustomer(SaveCustomerRequest customer) {
+        Customer newCustomer = new Customer();
+        newCustomer.setBusinessName(customer.getBusinessName());
+        newCustomer.setCuit(customer.getCuit());
+        newCustomer.setEmail(customer.getEmail());
 
-        if (constructionList != null) {
-            for (Construction construction : constructionList) {
-                construction.setCustomer(customer);
-            }
-        }
+        List<Construction> constructionList = constructionService.constructionsDtoToConstructions(customer.getConstructionList(), newCustomer);
+        newCustomer.setConstructionList(constructionList);
 
-        return customerRepository.save(customer);
+        return customerRepository.save(newCustomer);
     }
 
     @Override

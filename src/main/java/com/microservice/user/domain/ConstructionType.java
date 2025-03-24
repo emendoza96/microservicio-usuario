@@ -1,23 +1,23 @@
 package com.microservice.user.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "construction_type")
 public class ConstructionType {
 
     @Id
-    @NotNull(message = "Id is mandatory")
     private Integer id;
-    @NotNull(message = "Type is mandatory")
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private ConstructionTypeEnum type;
 
     public ConstructionType() {}
 
-    public ConstructionType(Integer id, String type) {
+    public ConstructionType(Integer id, ConstructionTypeEnum type) {
         this.id = id;
         this.type = type;
     }
@@ -28,16 +28,23 @@ public class ConstructionType {
     public void setId(Integer id) {
         this.id = id;
     }
-    public String getType() {
+    public ConstructionTypeEnum getType() {
         return type;
     }
-    public void setType(String type) {
+    public void setType(ConstructionTypeEnum type) {
         this.type = type;
     }
 
     @Override
     public String toString() {
         return "ConstructionType [id=" + id + ", type=" + type + "]";
+    }
+
+    public static enum ConstructionTypeEnum {
+        REPAIR,
+        HOUSE,
+        BUILDING,
+        ROAD
     }
 
 }

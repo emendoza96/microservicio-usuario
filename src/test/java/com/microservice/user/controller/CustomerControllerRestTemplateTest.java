@@ -19,12 +19,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.microservice.user.dao.jpa.ConstructionTypeRepository;
 import com.microservice.user.dao.jpa.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.UserEntity;
+import com.microservice.user.domain.dto.ConstructionDTO;
 import com.microservice.user.domain.dto.CustomerDTO;
+import com.microservice.user.domain.dto.SaveCustomerRequest;
 import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.security.jwt.JwtUtils;
 
@@ -39,9 +42,14 @@ public class CustomerControllerRestTemplateTest {
     private CustomerRepository customerRepository;
 
     @Autowired
+    private ConstructionTypeRepository constructionTypeRepository;
+
+    @Autowired
     private JwtUtils jwtUtils;
 
     private HttpHeaders headers;
+
+    private SaveCustomerRequest customerDto;
 
     private Customer customer;
 
@@ -53,13 +61,31 @@ public class CustomerControllerRestTemplateTest {
         headers.set("Authorization", "Bearer " + token);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        ConstructionType type = constructionTypeRepository.save(new ConstructionType(1, ConstructionType.ConstructionTypeEnum.REPAIR));
+
+        ConstructionDTO constructionDTO = new ConstructionDTO();
+        constructionDTO.setArea(12);
+        constructionDTO.setDescription("test desc");
+        constructionDTO.setLatitude(30.4f);
+        constructionDTO.setLongitude(40.4f);
+        constructionDTO.setDirection("Test - 463");
+        constructionDTO.setType(type.getType());
+
+        customerDto = new SaveCustomerRequest();
+        customerDto.setBusinessName("Test business");
+        customerDto.setEmail("test@gmail.com");
+        customerDto.setCuit("20-32424559-7");
+        customerDto.getConstructionList().add(constructionDTO);
+
+
+
         Construction construction = Construction.builder()
             .description("test desc")
             .latitude(30.4f)
             .longitude(40.4f)
             .direction("Test - 463")
             .area(50)
-            .constructionType(new ConstructionType(1, "REPAIR"))
+            .constructionType(type)
             .build()
         ;
 
@@ -72,7 +98,6 @@ public class CustomerControllerRestTemplateTest {
             .constructionList(List.of(construction))
             .build()
         ;
-
         construction.setCustomer(customer);
     }
 
@@ -82,7 +107,7 @@ public class CustomerControllerRestTemplateTest {
         //given
 
         //when
-        HttpEntity<Customer> entity = new HttpEntity<>(customer, headers);
+        HttpEntity<SaveCustomerRequest> entity = new HttpEntity<>(customerDto, headers);
         ResponseEntity<CustomerDTO> response = restTemplate.exchange(
             "/api/customer",
             HttpMethod.POST,
@@ -96,19 +121,18 @@ public class CustomerControllerRestTemplateTest {
 
         CustomerDTO newCustomer = response.getBody();
 
-        assertThat(newCustomer.getCuit()).isEqualTo(customer.getCuit());
-        assertThat(newCustomer.getBusinessName()).isEqualTo(customer.getBusinessName());
-        assertThat(newCustomer.getEmail()).isEqualTo(customer.getEmail());
-        assertThat(newCustomer.getMaxPay()).isEqualTo(customer.getMaxPay());
+        assertThat(newCustomer.getCuit()).isEqualTo(customerDto.getCuit());
+        assertThat(newCustomer.getBusinessName()).isEqualTo(customerDto.getBusinessName());
+        assertThat(newCustomer.getEmail()).isEqualTo(customerDto.getEmail());
     }
 
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testSaveCustomerMissingConstruction() throws Exception {
         //given
-        customer.setConstructionList(null);
+        customerDto.setConstructionList(null);
         //when
-        HttpEntity<Customer> entity = new HttpEntity<>(customer, headers);
+        HttpEntity<SaveCustomerRequest> entity = new HttpEntity<>(customerDto, headers);
         ResponseEntity<ErrorResponse> response = restTemplate.exchange(
             "/api/customer",
             HttpMethod.POST,

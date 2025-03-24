@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.microservice.user.domain.Customer;
 import com.microservice.user.domain.dto.CustomerDTO;
+import com.microservice.user.domain.dto.SaveCustomerRequest;
 import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.error.ErrorResponse;
 import com.microservice.user.service.CustomerService;
@@ -104,7 +105,7 @@ public class CustomerController {
         @ApiResponse(responseCode = "401", description = "Not authorized"),
         @ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    public ResponseEntity<?> saveCustomer(@Valid @RequestBody Customer customer) {
+    public ResponseEntity<?> saveCustomer(@Valid @RequestBody SaveCustomerRequest customer) {
 
         try {
             Customer newCustomer = customerService.createCustomer(customer);

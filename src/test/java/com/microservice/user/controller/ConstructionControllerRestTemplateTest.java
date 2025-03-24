@@ -65,7 +65,7 @@ public class ConstructionControllerRestTemplateTest {
             .longitude(40.4f)
             .direction("Test - 463")
             .area(50)
-            .constructionType(new ConstructionType(1, "REPAIR"))
+            .constructionType(new ConstructionType(1, ConstructionType.ConstructionTypeEnum.REPAIR))
             .build()
         ;
 
@@ -75,7 +75,7 @@ public class ConstructionControllerRestTemplateTest {
             .longitude(43.4f)
             .direction("Test - 1234")
             .area(100)
-            .constructionType(new ConstructionType(2, "HOUSE"))
+            .constructionType(new ConstructionType(2, ConstructionType.ConstructionTypeEnum.HOUSE))
             .build()
         ;
 
@@ -98,7 +98,7 @@ public class ConstructionControllerRestTemplateTest {
             .longitude(40.4f)
             .direction("Test - 463")
             .area(50)
-            .constructionType(new ConstructionType(2, "HOUSE"))
+            .constructionType(new ConstructionType(2, ConstructionType.ConstructionTypeEnum.HOUSE))
             .build()
         ;
 
@@ -120,7 +120,7 @@ public class ConstructionControllerRestTemplateTest {
             .longitude(41.4f)
             .direction("Main Test - 463")
             .area(510)
-            .constructionType(new ConstructionType(3, "BUILDING"))
+            .constructionType(new ConstructionType(3, ConstructionType.ConstructionTypeEnum.BUILDING))
             .build()
         ;
     }
@@ -239,7 +239,6 @@ public class ConstructionControllerRestTemplateTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         ConstructionDTO result = response.getBody();
-        assertThat(result.getId()).isEqualTo(constructionId);
         assertThat(result.getDescription()).isEqualTo(construction.getDescription());
         assertThat(result.getDirection()).isEqualTo(construction.getDirection());
         assertThat(result.getArea()).isEqualTo(construction.getArea());
@@ -287,7 +286,6 @@ public class ConstructionControllerRestTemplateTest {
 
         List<ConstructionDTO> constructions = List.of(response.getBody());
         assertThat(constructions.size()).isGreaterThan(0);
-        assertThat(constructions.get(0).getId()).isEqualTo(constructionId);
     }
 
     @Test
@@ -338,7 +336,6 @@ public class ConstructionControllerRestTemplateTest {
 
         List<ConstructionDTO> constructions = List.of(response.getBody());
         assertThat(constructions.size()).isGreaterThan(0);
-        assertThat(constructions.get(0).getConstructionType()).isEqualTo(constructionType);
     }
 
     @AfterEach

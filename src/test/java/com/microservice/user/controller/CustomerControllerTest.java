@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,10 +23,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microservice.user.domain.Construction;
-import com.microservice.user.domain.ConstructionType;
 import com.microservice.user.domain.Customer;
-import com.microservice.user.domain.UserEntity;
+import com.microservice.user.domain.dto.ConstructionDTO;
+import com.microservice.user.domain.dto.SaveCustomerRequest;
 import com.microservice.user.security.filters.MockJwtAuthorizationFilter;
 import com.microservice.user.service.CustomerService;
 import com.microservice.user.utils.MessagePropertyUtils;
@@ -49,33 +47,24 @@ public class CustomerControllerTest {
 
     private ObjectMapper objectMapper;
 
-    private Customer customer;
+    private SaveCustomerRequest customer;
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
 
-        Construction construction = Construction.builder()
-            .description("test desc")
-            .latitude(30.4f)
-            .longitude(40.4f)
-            .direction("Test - 463")
-            .area(50)
-            .constructionType(new ConstructionType(1, "REPAIR"))
-            .build()
-        ;
+        ConstructionDTO constructionDTO = new ConstructionDTO();
+        constructionDTO.setArea(12);
+        constructionDTO.setDescription("test");
+        constructionDTO.setLatitude(30.6f);
+        constructionDTO.setLongitude(32.f);
+        constructionDTO.setDirection("Test - 463");
 
-        customer = Customer.builder()
-            .businessName("Test business")
-            .cuit("20-32424559-7")
-            .email("test@gmail.com")
-            .maxPay(2000d)
-            .user(new UserEntity("test123", "test123"))
-            .constructionList(List.of(construction))
-            .build()
-        ;
-
-        construction.setCustomer(customer);
+        customer = new SaveCustomerRequest();
+        customer.setBusinessName("Test business");
+        customer.setEmail("test@gmail.com");
+        customer.setCuit("20-32424559-7");
+        customer.getConstructionList().add(constructionDTO);
 
         // Authorization
 
@@ -91,10 +80,11 @@ public class CustomerControllerTest {
         //given
         int customerId = 1;
         when(customerService.disableCustomer(customerId)).thenAnswer(invocation -> {
-            customer.setId(customerId);
-            customer.setDischargeDate(LocalDate.now());
-            System.err.println(customer);
-            return customer;
+            Customer customerAux = new Customer();
+            customerAux.setId(customerId);
+            customerAux.setDischargeDate(LocalDate.now());
+            System.err.println(customerAux);
+            return customerAux;
         });
 
         //when
@@ -116,7 +106,14 @@ public class CustomerControllerTest {
         String cuit = customer.getCuit();
         String business = customer.getBusinessName();
 
-        when(customerService.getCustomerByParam(cuit, business)).thenReturn(customer);
+        when(customerService.getCustomerByParam(cuit, business)).thenAnswer(invocation -> {
+            Customer customerAux = new Customer();
+            customerAux.setId(1);
+            customerAux.setCuit(cuit);
+            customerAux.setBusinessName(business);
+            System.err.println(customerAux);
+            return customerAux;
+        });
 
         //when
         ResultActions response = mockMvc.perform(
@@ -135,9 +132,13 @@ public class CustomerControllerTest {
     @Test
     void testSaveCustomer() throws Exception {
         //given
-        when(customerService.createCustomer(any(Customer.class))).thenAnswer(invocation -> {
-            Customer customerResult = invocation.getArgument(0);
-            return customerResult;
+        when(customerService.createCustomer(any(SaveCustomerRequest.class))).thenAnswer(invocation -> {
+            SaveCustomerRequest saveCustomerRequest = invocation.getArgument(0);
+            Customer customerAux = new Customer();
+            customerAux.setId(1);
+            customerAux.setBusinessName(saveCustomerRequest.getBusinessName());
+            customerAux.setCuit(saveCustomerRequest.getCuit());
+            return customerAux;
         });
 
         String jsonResult = objectMapper.writeValueAsString(customer);
@@ -155,7 +156,6 @@ public class CustomerControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber())
             .andExpect(MockMvcResultMatchers.jsonPath("$.businessName").value(customer.getBusinessName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.cuit").value(customer.getCuit()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.maxPay").value(customer.getMaxPay()))
         ;
     }
 

@@ -8,6 +8,6 @@ import com.microservice.user.domain.ConstructionType;
 
 public interface ConstructionTypeRepository extends JpaRepository<ConstructionType, Integer> {
 
-    public Optional<ConstructionType> findByType(String type);
+    public Optional<ConstructionType> findByType(ConstructionType.ConstructionTypeEnum type);
 
 }

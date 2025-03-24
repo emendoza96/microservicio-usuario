@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -46,15 +45,12 @@ public class Customer {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
-    @NotNull(message = "User is mandatory")
-    @Valid
     private UserEntity user;
     private LocalDate dischargeDate;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonManagedReference
     @NotNull(message = "Construction field is mandatory")
-    @Valid
     @Size(min = 1, message = "At least one construction is required")
     private List<Construction> constructionList;
 

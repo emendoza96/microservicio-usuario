@@ -1,5 +1,6 @@
 package com.microservice.user.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +12,8 @@ import com.microservice.user.dao.jpa.ConstructionTypeRepository;
 import com.microservice.user.dao.jpa.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
+import com.microservice.user.domain.Customer;
+import com.microservice.user.domain.dto.ConstructionDTO;
 import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.service.ConstructionService;
 import com.microservice.user.utils.MessagePropertyUtils;
@@ -87,6 +90,31 @@ public class ConstructionServiceImpl implements ConstructionService {
     @Override
     public List<Construction> getConstructionByParams(String customerName, String constructionType) {
         return constructionRepository.findByBusinessNameAndType(customerName, constructionType);
+    }
+
+    @Override
+    public List<Construction> constructionsDtoToConstructions(List<ConstructionDTO> constructionDTOs, Customer customer) {
+        List<Construction> constructions = new ArrayList<>();
+
+        for (ConstructionDTO constructionDto : constructionDTOs) {
+            constructions.add(this.constructionDtoToConstruction(constructionDto, customer));
+        }
+
+        return constructions;
+    }
+
+    @Override
+    public Construction constructionDtoToConstruction(ConstructionDTO constructionDTO, Customer customer) {
+        Construction newConstruction = new Construction();
+        newConstruction.setDescription(constructionDTO.getDescription());
+        newConstruction.setArea(constructionDTO.getArea());
+        newConstruction.setDirection(constructionDTO.getDirection());
+        newConstruction.setLatitude(constructionDTO.getLatitude());
+        newConstruction.setLongitude(constructionDTO.getLongitude());
+        ConstructionType type = constructionTypeRepository.findByType(constructionDTO.getType()).orElseThrow(() -> new IllegalArgumentException("Construction Type not found"));
+        newConstruction.setConstructionType(type);
+        newConstruction.setCustomer(customer);
+        return newConstruction;
     }
 
 }

@@ -1,8 +1,10 @@
 package com.microservice.user.domain.dto;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
 
 import lombok.AllArgsConstructor;
@@ -27,6 +29,14 @@ public class CustomerDTO {
     private List<ConstructionDTO> constructions;
 
     public static CustomerDTO customerMapping(Customer customer) {
+        List<ConstructionDTO> constructionDTOs = new ArrayList<>();
+
+        if (customer.getConstructionList() != null) {
+            for (Construction construction : customer.getConstructionList()) {
+                constructionDTOs.add(ConstructionDTO.constructionMapping(construction));
+            }
+        }
+
         return CustomerDTO.builder()
             .id(customer.getId())
             .businessName(customer.getBusinessName())
@@ -34,11 +44,7 @@ public class CustomerDTO {
             .email(customer.getEmail())
             .dischargeDate(customer.getDischargeDate())
             .maxPay(customer.getMaxPay())
-            .constructions(
-                customer.getConstructionList().stream().map(c -> {
-                    return ConstructionDTO.constructionMapping(c);
-                }).toList()
-            )
+            .constructions(constructionDTOs)
             .build()
         ;
     }
