@@ -17,7 +17,6 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,8 +87,7 @@ public class CustomerController {
     public ResponseEntity<?> getCustomer() {
 
         try {
-            List<CustomerDTO> customers = customerService.getAllCustomers().stream().map(customer -> CustomerDTO.customerMapping(customer)).toList();
-            return ResponseEntity.ok().body(customers);
+            return ResponseEntity.ok().body(customerService.getAllCustomers());
         } catch (Exception e) {
             ErrorDetail errorDetails = new ErrorDetail();
             errorDetails.setCode(HttpStatus.BAD_REQUEST.value());

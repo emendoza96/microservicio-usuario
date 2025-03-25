@@ -9,11 +9,13 @@ import org.springframework.stereotype.Service;
 import com.microservice.user.dao.jpa.CustomerRepository;
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.Customer;
+import com.microservice.user.domain.dto.CustomerDTO;
 import com.microservice.user.domain.dto.SaveCustomerRequest;
 import com.microservice.user.error.ErrorDetail;
 import com.microservice.user.service.ConstructionService;
 import com.microservice.user.service.CustomerService;
 import com.microservice.user.utils.MessagePropertyUtils;
+import org.springframework.cache.annotation.Cacheable;
 
 import jakarta.transaction.Transactional;
 
@@ -30,8 +32,9 @@ public class CustomerServiceImpl implements CustomerService {
     private MessagePropertyUtils messageUtils;
 
     @Override
-    public List<Customer> getAllCustomers() {
-        return customerRepository.findAll();
+    @Cacheable(value = "getAllCustomers")
+    public List<CustomerDTO> getAllCustomers() {
+        return customerRepository.findAll().stream().map(customer -> CustomerDTO.customerMapping(customer)).toList();
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.microservice.user.domain.dto;
 
+import java.io.Serializable;
+
 import com.microservice.user.domain.Construction;
 import com.microservice.user.domain.ConstructionType;
 
@@ -12,7 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Data
-public class ConstructionDTO {
+public class ConstructionDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String description;
     private String direction;

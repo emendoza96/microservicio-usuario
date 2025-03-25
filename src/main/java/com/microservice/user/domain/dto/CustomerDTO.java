@@ -1,5 +1,6 @@
 package com.microservice.user.domain.dto;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class CustomerDTO {
+public class CustomerDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int id;
     private String businessName;
